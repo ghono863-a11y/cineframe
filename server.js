@@ -269,50 +269,66 @@ app.get('/api/bookings/all', auth, async (req, res) => {
 //  ADMIN: create a delivery for a client
 //  body: { name, clientEmail, date, files: [{name, type, size, link}] }
 app.post('/api/galleries', auth, async (req, res) => {
-  if (req.user.role !== 'admin')
-    return res.status(403).json({ error: 'Admin only' });
+  try {
+    if (req.user.role !== 'admin')
+      return res.status(403).json({ error: 'Admin only' });
 
-  const { name, clientEmail, date, files } = req.body;
-  if (!name || !clientEmail || !files || files.length === 0)
-    return res.status(400).json({ error: 'Name, client email and at least one file link are required' });
+    const { name, clientEmail, date, files } = req.body;
+    if (!name || !clientEmail || !files || files.length === 0)
+      return res.status(400).json({ error: 'Name, client email and at least one file link are required' });
 
-  const gallery = await Gallery.create({
-    name,
-    clientEmail: clientEmail.trim().toLowerCase(),
-    date: date || new Date().toISOString().split('T')[0],
-    type: 'delivery',
-    files: files.map(f => ({
-      name: f.name,
-      type: f.type || 'photos',
-      size: f.size || '',
-      link: f.link,
-    })),
-  });
-  res.json({ success: true, gallery });
+    const gallery = await Gallery.create({
+      name,
+      clientEmail: clientEmail.trim().toLowerCase(),
+      date: date || new Date().toISOString().split('T')[0],
+      type: 'delivery',
+      files: files.map(f => ({
+        name: f.name,
+        type: f.type || 'photos',
+        size: f.size || '',
+        link: f.link,
+      })),
+    });
+    res.json({ success: true, gallery });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 //  ADMIN: see ALL deliveries
 app.get('/api/galleries/all', auth, async (req, res) => {
-  if (req.user.role !== 'admin')
-    return res.status(403).json({ error: 'Admin only' });
-  const galleries = await Gallery.find().sort({ createdAt: -1 });
-  res.json(galleries);
+  try {
+    if (req.user.role !== 'admin')
+      return res.status(403).json({ error: 'Admin only' });
+    const galleries = await Gallery.find().sort({ createdAt: -1 });
+    res.json(galleries);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 //  CLIENT: see only MY deliveries (matched by my email)
 app.get('/api/galleries/mine', auth, async (req, res) => {
-  const galleries = await Gallery.find({
-    clientEmail: req.user.email.trim().toLowerCase(),
-  }).sort({ createdAt: -1 });
-  res.json(galleries);
+  try {
+    const galleries = await Gallery.find({
+      clientEmail: req.user.email.trim().toLowerCase(),
+    }).sort({ createdAt: -1 });
+    res.json(galleries);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 //  ADMIN: delete a delivery
 app.delete('/api/galleries/:id', auth, async (req, res) => {
-  if (req.user.role !== 'admin')
-    return res.status(403).json({ error: 'Admin only' });
-  await Gallery.findByIdAndDelete(req.params.id);
-  res.json({ success: true, message: 'Delivery deleted' });
+  try {
+    if (req.user.role !== 'admin')
+      return res.status(403).json({ error: 'Admin only' });
+    await Gallery.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Delivery deleted' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ============================================================================
