@@ -1,0 +1,8 @@
+# NEVER upload these — they contain secrets / are too big
+.env
+node_modules/
+uploads/
+*.log
+.DS_Store
+.claude/
+serve.ps1

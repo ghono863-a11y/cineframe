@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CINEFRAME - Photography & Cinematography</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: #02010f; color: #fff; overflow-x: hidden; }
+
+    /* Galaxy background */
+    .bg-scene {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+      background: radial-gradient(ellipse at 20% 50%, #0d0630 0%, #000005 60%),
+                  radial-gradient(ellipse at 80% 20%, #060318 0%, transparent 50%),
+                  radial-gradient(ellipse at 60% 80%, #04021a 0%, transparent 50%);
+      background-color: #02010f;
+    }
+
+    /* Nebula glows — static, no animation */
+    .nebula {
+      position: absolute; border-radius: 50%; pointer-events: none;
+    }
+    .nebula-1 { width: 80vw; height: 60vh; top: -10%; left: -20%; background: radial-gradient(ellipse, rgba(88,28,220,0.18) 0%, transparent 70%); filter: blur(60px); }
+    .nebula-2 { width: 60vw; height: 50vh; top: 30%; right: -15%; background: radial-gradient(ellipse, rgba(6,100,180,0.15) 0%, transparent 70%); filter: blur(50px); }
+    .nebula-3 { width: 50vw; height: 40vh; bottom: 0; left: 20%; background: radial-gradient(ellipse, rgba(160,20,120,0.12) 0%, transparent 70%); filter: blur(60px); }
+
+    /* Star layers */
+    .stars-sm, .stars-md, .stars-lg { position: absolute; inset: 0; }
+
+    .stars-sm {
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 8%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 22%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 5%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 18%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 12%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 15% 35%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 45%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 48% 38%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 62% 42%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 78% 30%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 92% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 5%  55%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 20% 62%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 35% 58%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 52% 65%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 67% 55%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 82% 70%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 95% 60%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 8%  78%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 23% 82%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 88%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 75%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 90%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 82%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 3%  92%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 18% 97%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 38% 95%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 58% 98%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 73% 93%, rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 88% 96%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 13% 25%, rgba(200,220,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 43% 72%, rgba(200,220,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 68% 48%, rgba(220,200,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 97% 22%, rgba(200,220,255,0.7) 0%, transparent 100%);
+    }
+
+    .stars-md {
+      background-image:
+        radial-gradient(1.5px 1.5px at 7%  20%, rgba(255,255,255,0.95) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 33% 14%, rgba(255,255,255,0.85) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 58% 28%, rgba(255,255,255,0.9)  0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 80% 8%,  rgba(255,255,255,0.8)  0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 17% 50%, rgba(255,255,255,0.95) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 44% 55%, rgba(255,255,255,0.85) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 72% 48%, rgba(255,255,255,0.9)  0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 91% 52%, rgba(255,255,255,0.8)  0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 26% 78%, rgba(255,255,255,0.95) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 53% 83%, rgba(255,255,255,0.85) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 79% 75%, rgba(255,255,255,0.9)  0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 12% 90%, rgba(255,255,255,0.8)  0%, transparent 100%),
+        radial-gradient(2px 2px at 65% 15%, rgba(180,210,255,0.9) 0%, transparent 100%),
+        radial-gradient(2px 2px at 38% 68%, rgba(255,200,220,0.8) 0%, transparent 100%),
+        radial-gradient(2px 2px at 85% 85%, rgba(180,210,255,0.9) 0%, transparent 100%);
+    }
+
+    .stars-lg {
+      background-image:
+        radial-gradient(2.5px 2.5px at 20% 30%, rgba(255,255,255,1)   0%, transparent 100%),
+        radial-gradient(2.5px 2.5px at 75% 20%, rgba(255,255,255,0.95) 0%, transparent 100%),
+        radial-gradient(2.5px 2.5px at 50% 70%, rgba(255,255,255,1)   0%, transparent 100%),
+        radial-gradient(2.5px 2.5px at 90% 65%, rgba(255,255,255,0.9)  0%, transparent 100%),
+        radial-gradient(3px 3px at 10% 60%, rgba(200,230,255,0.9) 0%, transparent 100%),
+        radial-gradient(3px 3px at 60% 40%, rgba(255,230,200,0.85) 0%, transparent 100%),
+        radial-gradient(2px 2px at 35% 90%, rgba(255,255,255,1) 0%, transparent 100%),
+        radial-gradient(2px 2px at 95% 35%, rgba(220,200,255,0.95) 0%, transparent 100%);
+    }
+
+    /* Subtle twinkling on a few stars */
+    @keyframes twinkle {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.3; }
+    }
+    .stars-lg { animation: twinkle 4s ease-in-out infinite; }
+
+    /* Glass card */
+    .glass {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .glass-strong {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .glass-dark {
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .glass-input {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .glass-input::placeholder { color: rgba(255,255,255,0.35); }
+    .glass-input:focus { border-color: rgba(6,182,212,0.7); background: rgba(255,255,255,0.12); }
+    .glass-input option { background: #1e1b4b; color: #fff; }
+
+    .glow-cyan  { box-shadow: 0 0 30px rgba(6,182,212,0.3); }
+    .glow-purple{ box-shadow: 0 0 30px rgba(124,58,237,0.3); }
+    .glow-pink  { box-shadow: 0 0 30px rgba(236,72,153,0.25); }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #67e8f9, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    /* Cyberpunk primary button */
+    .gradient-btn {
+      background: #0ff0fc;
+      border: 2px solid #0ff0fc !important;
+      box-shadow: 0 0 12px #0ff0fc, 0 0 30px rgba(0,240,252,0.4), inset 0 0 12px rgba(0,240,252,0.1);
+      color: #000 !important;
+      font-weight: 900 !important;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+    .gradient-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 100%);
+      pointer-events: none;
+    }
+    .gradient-btn:hover {
+      background: #ff2d78;
+      border-color: #ff2d78 !important;
+      box-shadow: 0 0 16px #ff2d78, 0 0 40px rgba(255,45,120,0.5), inset 0 0 12px rgba(255,45,120,0.15);
+      color: #fff !important;
+      transform: translateY(-2px) scale(1.03);
+    }
+    .gradient-btn:active { transform: translateY(0) scale(1); }
+
+    /* Cyberpunk secondary / outline button */
+    .cyber-btn-outline {
+      background: transparent;
+      border: 2px solid #ff2d78 !important;
+      box-shadow: 0 0 10px rgba(255,45,120,0.5), inset 0 0 10px rgba(255,45,120,0.05);
+      color: #ff2d78 !important;
+      font-weight: 800 !important;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+    .cyber-btn-outline:hover {
+      background: #ff2d78;
+      color: #fff !important;
+      box-shadow: 0 0 20px #ff2d78, 0 0 40px rgba(255,45,120,0.4);
+      transform: translateY(-2px);
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.6); }
+
+    .step-done   { background: linear-gradient(135deg,#06b6d4,#7c3aed); color:#fff; border:none; }
+    .step-active { border: 2px solid #06b6d4; color: #06b6d4; box-shadow: 0 0 12px rgba(6,182,212,0.4); }
+    .step-inactive{ border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.3); }
+
+    .pkg-selected { border-color: rgba(6,182,212,0.7) !important; background: rgba(6,182,212,0.08) !important; box-shadow: 0 0 20px rgba(6,182,212,0.2); }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <!-- Animated background -->
+  <div class="bg-scene">
+    <div class="stars-sm"></div>
+    <div class="stars-md"></div>
+    <div class="stars-lg"></div>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+  </div>
+
+  <div id="root" style="position:relative;z-index:1;"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // ========================================================================
+    //  API CONFIG — automatically picks the right backend.
+    // ========================================================================
+    //  ▼▼▼  AFTER you deploy the backend to Render, paste that URL here  ▼▼▼
+    const LIVE_BACKEND_URL = 'https://PASTE-YOUR-RENDER-URL-HERE.onrender.com';
+    //  ▲▲▲  (it ends in .onrender.com — I'll tell you exactly when)  ▲▲▲
+
+    // When opened on your PC -> use local server.
+    // When opened from a real website -> use the live server above.
+    const isLocal = ['localhost', '127.0.0.1', ''].includes(location.hostname);
+    const API_URL = isLocal ? 'http://localhost:5000' : LIVE_BACKEND_URL;
+
+    // Small helper: call the backend. If the backend is offline, it throws
+    // and the app falls back to DEMO MODE so the preview still works.
+    async function api(path, method = 'GET', body = null, token = null) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      const res = await fetch(API_URL + path, {
+        method, headers, body: body ? JSON.stringify(body) : null,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    const Icons = {
+      Play:       () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>,
+      PlayLg:     () => <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="5,3 19,12 5,21"/></svg>,
+      Chevron:    () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9,18 15,12 9,6"/></svg>,
+      Download:   () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+      LogOut:     () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+      Menu:       () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
+      X:          () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+      Eye:        () => <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+      Plus:       () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+      Trash:      () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>,
+      Check:      () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20,6 9,17 4,12"/></svg>,
+      CreditCard: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+      Lock:       () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>,
+      Calendar:   () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+    };
+
+    const PACKAGES = [
+      { id:'basic',    name:'Essential', price:25000, badge:'',           accent:'rgba(99,102,241,0.6)',  desc:'Perfect for intimate events',   includes:['4 hrs coverage','200 edited photos','Online gallery','1 photographer'] },
+      { id:'standard', name:'Premium',  price:45000, badge:'Most Popular', accent:'rgba(6,182,212,0.7)',  desc:'Our most loved package',        includes:['8 hrs coverage','500 edited photos','Cinematic highlight reel','2 photographers','Drone shots'] },
+      { id:'elite',    name:'Elite',    price:75000, badge:'Best Value',   accent:'rgba(236,72,153,0.7)', desc:'Full cinematic experience',     includes:['Full day coverage','1000+ edited photos','Full wedding film (45 min)','3-person crew','Drone + Gimbal','Same-day teaser'] },
+    ];
+
+    function App() {
+      const [user, setUser] = useState(null);
+      const [page, setPage] = useState('home');
+      const [menuOpen, setMenuOpen] = useState(false);
+
+      return (
+        <div className="min-h-screen text-white">
+          <Nav user={user} setUser={setUser} page={page} setPage={setPage} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+          <div style={{paddingTop:'80px'}}>
+            {page==='home'          && <Home setPage={setPage} user={user} />}
+            {page==='portfolio'     && <Portfolio />}
+            {page==='booking'       && <Booking setPage={setPage} user={user} />}
+            {page==='login'         && <Login setUser={setUser} setPage={setPage} />}
+            {page==='register'      && <Register setUser={setUser} setPage={setPage} />}
+            {page==='client-portal' && user && <ClientPortal user={user} setPage={setPage} />}
+            {page==='admin'         && user?.role==='admin' && <AdminDash setPage={setPage} />}
+          </div>
+        </div>
+      );
+    }
+
+    // ── Nav ──────────────────────────────────────────────────────────────────────
+    function Nav({ user, setUser, page, setPage, menuOpen, setMenuOpen }) {
+      return (
+        <nav className="glass-dark fixed top-0 left-0 right-0 z-50" style={{borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+          <div style={{maxWidth:1280,margin:'0 auto',padding:'0 24px'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',height:76}}>
+
+              {/* Logo */}
+              <div onClick={()=>{setPage('home');setMenuOpen(false);}} style={{display:'flex',alignItems:'center',gap:12,cursor:'pointer'}}>
+                <div className="gradient-btn" style={{width:40,height:40,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <Icons.Play />
+                </div>
+                <div>
+                  <div style={{fontWeight:900,fontSize:17,letterSpacing:'-0.5px'}}>CINEFRAME</div>
+                  <div style={{fontSize:10,color:'rgba(103,232,249,0.9)',fontWeight:600,letterSpacing:2}}>FILMS & MOMENTS</div>
+                </div>
+              </div>
+
+              {/* Desktop links */}
+              <div style={{display:'flex',alignItems:'center',gap:28}} className="hidden-mobile">
+                <NavBtn label="Portfolio" p="portfolio" page={page} setPage={setPage} />
+                <button onClick={()=>setPage('booking')} className="gradient-btn" style={{padding:'8px 18px',borderRadius:10,fontWeight:700,fontSize:13,border:'none',cursor:'pointer',color:'#fff',display:'flex',alignItems:'center',gap:6}}>
+                  📅 Book Now
+                </button>
+                {user ? (
+                  <>
+                    <NavBtn label={user.role==='admin'?'Dashboard':'My Files'} p={user.role==='admin'?'admin':'client-portal'} page={page} setPage={setPage} />
+                    <button onClick={()=>{setUser(null);setPage('home');}} className="glass" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:10,fontSize:13,fontWeight:600,cursor:'pointer',color:'rgba(252,165,165,1)',border:'1px solid rgba(239,68,68,0.3)'}}>
+                      <Icons.LogOut /> Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <NavBtn label="Login" p="login" page={page} setPage={setPage} />
+                    <button onClick={()=>setPage('register')} className="cyber-btn-outline" style={{padding:'8px 18px',borderRadius:0,fontSize:13,cursor:'pointer'}}>
+                      Client Access
+                    </button>
+                  </>
+                )}
+              </div>
+
+              <button onClick={()=>setMenuOpen(!menuOpen)} style={{background:'none',border:'none',color:'#fff',cursor:'pointer',padding:8}} className="show-mobile">
+                {menuOpen ? <Icons.X /> : <Icons.Menu />}
+              </button>
+            </div>
+
+            {menuOpen && (
+              <div className="glass" style={{padding:'12px 0 16px',borderRadius:12,marginBottom:12,display:'flex',flexDirection:'column',gap:4}}>
+                {['Portfolio','Book Now','Login'].map(l => {
+                  const p = l==='Book Now'?'booking':l.toLowerCase().replace(' ','-');
+                  return <button key={l} onClick={()=>{setPage(p);setMenuOpen(false);}} style={{textAlign:'left',padding:'10px 16px',background:'none',border:'none',color:page===p?'#67e8f9':'rgba(255,255,255,0.8)',cursor:'pointer',fontWeight:600,fontSize:14}}>{l}</button>;
+                })}
+              </div>
+            )}
+          </div>
+        </nav>
+      );
+    }
+
+    function NavBtn({ label, p, page, setPage }) {
+      const active = page === p;
+      return (
+        <button onClick={()=>setPage(p)} style={{background:'none',border:'none',cursor:'pointer',fontWeight:700,fontSize:12,letterSpacing:2,textTransform:'uppercase',color:active?'#67e8f9':'rgba(255,255,255,0.65)',transition:'color 0.2s',borderBottom:active?'1px solid #67e8f9':'none',paddingBottom:2}}>
+          {label}
+        </button>
+      );
+    }
+
+    // ── Home ─────────────────────────────────────────────────────────────────────
+    function Home({ setPage, user }) {
+      return (
+        <div>
+          {/* Hero */}
+          <section style={{minHeight:'92vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'0 24px',textAlign:'center'}}>
+            <div style={{maxWidth:800,zIndex:1}}>
+              <div className="glass" style={{display:'inline-block',padding:'6px 18px',borderRadius:50,fontSize:12,fontWeight:700,letterSpacing:2,marginBottom:24,color:'#a78bfa'}}>
+                ✦ AWARD-WINNING CINEMATOGRAPHY ✦
+              </div>
+              <h1 style={{fontSize:'clamp(2.8rem,7vw,5.5rem)',fontWeight:900,lineHeight:1.05,marginBottom:24,letterSpacing:'-2px'}}>
+                <span style={{display:'block',marginBottom:8}}>Cinematic</span>
+                <span className="gradient-text">Visual Storytelling</span>
+              </h1>
+              <p style={{fontSize:'clamp(1rem,2vw,1.2rem)',color:'rgba(255,255,255,0.65)',marginBottom:40,maxWidth:560,margin:'0 auto 40px',lineHeight:1.7}}>
+                Weddings, Events & Cinematic Films. We capture moments that move hearts and tell stories that last forever.
+              </p>
+              <div style={{display:'flex',gap:16,justifyContent:'center',flexWrap:'wrap'}}>
+                <button onClick={()=>setPage('portfolio')} className="gradient-btn" style={{padding:'14px 32px',borderRadius:14,fontWeight:800,fontSize:16,border:'none',cursor:'pointer',color:'#fff',display:'flex',alignItems:'center',gap:8}}>
+                  View Work <Icons.Chevron />
+                </button>
+                <button onClick={()=>setPage('booking')} className="cyber-btn-outline" style={{padding:'14px 32px',borderRadius:0,fontSize:16,cursor:'pointer'}}>
+                  📅 Book a Session
+                </button>
+                {!user && (
+                  <button onClick={()=>setPage('login')} className="cyber-btn-outline" style={{padding:'14px 32px',borderRadius:0,fontSize:16,cursor:'pointer'}}>
+                    Client Login
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Features */}
+          <section style={{padding:'60px 24px',maxWidth:1100,margin:'0 auto'}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:20}}>
+              {[
+                {icon:'🎬',title:'Cinematography',desc:'Cinematic wedding films & event videos with professional color grading',color:'#7c3aed'},
+                {icon:'📸',title:'Photography',desc:'Stunning wedding & event photography capturing every precious moment',color:'#06b6d4'},
+                {icon:'🔐',title:'Secure Portal',desc:'Access your photos & videos securely. Download in high quality anytime',color:'#ec4899'},
+              ].map(f => (
+                <div key={f.title} className="glass" style={{padding:'32px',borderRadius:20,transition:'transform 0.2s,box-shadow 0.2s'}}
+                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px)';e.currentTarget.style.boxShadow=`0 20px 40px ${f.color}22`;}}
+                  onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='';}}
+                >
+                  <div style={{fontSize:44,marginBottom:16}}>{f.icon}</div>
+                  <h3 style={{fontSize:20,fontWeight:800,marginBottom:10,color:'#fff'}}>{f.title}</h3>
+                  <p style={{color:'rgba(255,255,255,0.55)',lineHeight:1.6,fontSize:14}}>{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Packages */}
+          <section style={{padding:'60px 24px',maxWidth:1100,margin:'0 auto'}}>
+            <h2 style={{textAlign:'center',fontSize:'clamp(2rem,4vw,3rem)',fontWeight:900,marginBottom:12}}>Our Packages</h2>
+            <p style={{textAlign:'center',color:'rgba(255,255,255,0.5)',marginBottom:48,fontSize:15}}>Secure your date with just a deposit</p>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:20}}>
+              {PACKAGES.map(pkg => (
+                <div key={pkg.id} className="glass" style={{borderRadius:22,overflow:'hidden',border:`1px solid ${pkg.accent}`,position:'relative',display:'flex',flexDirection:'column'}}>
+                  {pkg.badge && (
+                    <div style={{position:'absolute',top:16,right:16,background:pkg.accent,padding:'4px 12px',borderRadius:50,fontSize:11,fontWeight:800}}>{pkg.badge}</div>
+                  )}
+                  <div style={{padding:'28px 28px 0'}}>
+                    <h3 style={{fontSize:22,fontWeight:900,marginBottom:4}}>{pkg.name}</h3>
+                    <p style={{color:'rgba(255,255,255,0.5)',fontSize:13,marginBottom:16}}>{pkg.desc}</p>
+                    <div style={{fontSize:36,fontWeight:900,marginBottom:2}}>₹{pkg.price.toLocaleString()}</div>
+                    <div style={{fontSize:13,color:'rgba(103,232,249,0.9)',marginBottom:20}}>Deposit from ₹{Math.ceil(pkg.price*0.3).toLocaleString()}</div>
+                    <ul style={{listStyle:'none',padding:0,margin:'0 0 24px',display:'flex',flexDirection:'column',gap:8}}>
+                      {pkg.includes.map(item => (
+                        <li key={item} style={{fontSize:13,color:'rgba(255,255,255,0.75)',display:'flex',alignItems:'center',gap:8}}>
+                          <span style={{color:'#67e8f9',flexShrink:0}}><Icons.Check /></span>{item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div style={{padding:'0 28px 28px',marginTop:'auto'}}>
+                    <button onClick={()=>setPage('booking')} className="gradient-btn" style={{width:'100%',padding:'12px',borderRadius:12,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15}}>
+                      Book This Package
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* CTA */}
+          <section style={{padding:'60px 24px 80px',textAlign:'center'}}>
+            <div className="glass-strong" style={{maxWidth:700,margin:'0 auto',padding:'48px 40px',borderRadius:28}}>
+              <h2 style={{fontSize:'clamp(1.8rem,4vw,2.8rem)',fontWeight:900,marginBottom:16}}>Ready to Book?</h2>
+              <p style={{color:'rgba(255,255,255,0.6)',fontSize:15,marginBottom:32,lineHeight:1.7}}>
+                Browse our portfolio or secure your date with a deposit today
+              </p>
+              <div style={{display:'flex',gap:16,justifyContent:'center',flexWrap:'wrap'}}>
+                <button onClick={()=>setPage('portfolio')} className="cyber-btn-outline" style={{padding:'12px 28px',borderRadius:0,fontSize:15,cursor:'pointer'}}>
+                  Explore Portfolio
+                </button>
+                <button onClick={()=>setPage('booking')} className="gradient-btn" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,cursor:'pointer',color:'#fff',border:'none',fontSize:15}}>
+                  📅 Book Now
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    // ── Portfolio ────────────────────────────────────────────────────────────────
+    function Portfolio() {
+      const [tab, setTab] = useState('videos');
+      const [selected, setSelected] = useState(null);
+
+      const videos = [
+        {id:1,title:'Wedding Highlight - Raj & Priya',thumb:'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop',dur:'5:42'},
+        {id:2,title:'Corporate Event Film',           thumb:'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=400&fit=crop',dur:'3:20'},
+        {id:3,title:'Cinematic Reel 2024',            thumb:'https://images.unsplash.com/photo-1533000971552-74f440642117?w=600&h=400&fit=crop',dur:'2:15'},
+        {id:4,title:'Event Coverage - Tech Summit',   thumb:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop',dur:'4:30'},
+      ];
+      const photos = [
+        {id:1,title:'Wedding Day - Ceremony', src:'https://images.unsplash.com/photo-1519741497674-611481863552?w=500&h=650&fit=crop'},
+        {id:2,title:'Reception Moments',      src:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=500&h=650&fit=crop'},
+        {id:3,title:'Event Photography',      src:'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=500&h=650&fit=crop'},
+        {id:4,title:'Detail Shots',           src:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=650&fit=crop'},
+        {id:5,title:'Bride Portrait',         src:'https://images.unsplash.com/photo-1494976866925-5b100481aa4b?w=500&h=650&fit=crop'},
+        {id:6,title:'Group Photos',           src:'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=500&h=650&fit=crop'},
+      ];
+
+      return (
+        <div style={{minHeight:'100vh',padding:'48px 24px'}}>
+          <div style={{maxWidth:1200,margin:'0 auto'}}>
+            <h1 style={{fontSize:'clamp(2.5rem,5vw,4rem)',fontWeight:900,marginBottom:12,textAlign:'center'}}>Our Portfolio</h1>
+            <p style={{textAlign:'center',color:'rgba(255,255,255,0.5)',marginBottom:40}}>A glimpse into our cinematic world</p>
+
+            <div style={{display:'flex',gap:12,justifyContent:'center',marginBottom:40}}>
+              {['videos','photos'].map(t => (
+                <button key={t} onClick={()=>setTab(t)} className={tab===t?'gradient-btn':'glass'} style={{padding:'10px 24px',borderRadius:12,fontWeight:700,cursor:'pointer',border:'none',color:'#fff',fontSize:14}}>
+                  {t==='videos'?'🎬 Videos':'📸 Photos'}
+                </button>
+              ))}
+            </div>
+
+            {tab==='videos' && (
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:16}}>
+                {videos.map(v => (
+                  <div key={v.id} onClick={()=>setSelected(v)} style={{borderRadius:18,overflow:'hidden',cursor:'pointer',position:'relative',aspectRatio:'4/3'}}
+                    onMouseEnter={e=>e.currentTarget.querySelector('.overlay').style.opacity='1'}
+                    onMouseLeave={e=>e.currentTarget.querySelector('.overlay').style.opacity='0'}>
+                    <img src={v.thumb} alt={v.title} style={{width:'100%',height:'100%',objectFit:'cover',transition:'transform 0.4s'}}
+                      onMouseEnter={e=>e.target.style.transform='scale(1.07)'}
+                      onMouseLeave={e=>e.target.style.transform='scale(1)'} />
+                    <div className="overlay" style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.55)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',opacity:0,transition:'opacity 0.3s',backdropFilter:'blur(2px)'}}>
+                      <span style={{color:'rgba(103,232,249,0.95)'}}><Icons.PlayLg /></span>
+                    </div>
+                    <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'16px',background:'linear-gradient(transparent,rgba(0,0,0,0.8))'}}>
+                      <div style={{fontWeight:700,fontSize:14}}>{v.title}</div>
+                      <div style={{fontSize:12,color:'rgba(255,255,255,0.6)'}}>{v.dur}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {tab==='photos' && (
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:16}}>
+                {photos.map(p => (
+                  <div key={p.id} onClick={()=>setSelected(p)} style={{borderRadius:18,overflow:'hidden',cursor:'pointer',position:'relative',aspectRatio:'3/4'}}
+                    onMouseEnter={e=>e.currentTarget.querySelector('.overlay').style.opacity='1'}
+                    onMouseLeave={e=>e.currentTarget.querySelector('.overlay').style.opacity='0'}>
+                    <img src={p.src} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover',transition:'transform 0.4s'}}
+                      onMouseEnter={e=>e.target.style.transform='scale(1.07)'}
+                      onMouseLeave={e=>e.target.style.transform='scale(1)'} />
+                    <div className="overlay" style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',opacity:0,transition:'opacity 0.3s',backdropFilter:'blur(2px)'}}>
+                      <span style={{color:'rgba(103,232,249,0.95)'}}><Icons.Eye /></span>
+                    </div>
+                    <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'12px 14px',background:'linear-gradient(transparent,rgba(0,0,0,0.8)',fontSize:13,fontWeight:600}}>{p.title}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {selected && (
+            <div onClick={()=>setSelected(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',backdropFilter:'blur(16px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100,padding:24}}>
+              <div onClick={e=>e.stopPropagation()} style={{maxWidth:860,width:'100%'}}>
+                <img src={selected.thumb||selected.src} alt={selected.title} style={{width:'100%',borderRadius:20}} />
+                <p style={{textAlign:'center',fontWeight:700,fontSize:18,marginTop:16}}>{selected.title}</p>
+                <p style={{textAlign:'center',color:'rgba(255,255,255,0.4)',fontSize:13,marginTop:4}}>Click outside to close</p>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ── Booking ──────────────────────────────────────────────────────────────────
+    function Booking({ setPage, user }) {
+      const [step, setStep] = useState(1);
+      const [f, setF] = useState({ name:user?.name||'', email:user?.email||'', phone:'', eventType:'', eventDate:'', venue:'', notes:'', pkgId:'', payType:'50', custom:'', card:'', expiry:'', cvv:'', cardName:'' });
+      const [done, setDone] = useState(false);
+      const [ref, setRef] = useState('');
+      const set = (k,v) => setF(p=>({...p,[k]:v}));
+      const pkg = PACKAGES.find(p=>p.id===f.pkgId);
+      const deposit = () => { if(!pkg) return 0; if(f.payType==='custom') return parseInt(f.custom)||0; return Math.ceil(pkg.price*(parseInt(f.payType)/100)); };
+
+      // Loads the Razorpay popup script only when first needed
+      const loadRazorpay = () => new Promise((resolve) => {
+        if (window.Razorpay) return resolve(true);
+        const s = document.createElement('script');
+        s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        s.onload = () => resolve(true);
+        s.onerror = () => resolve(false);
+        document.body.appendChild(s);
+      });
+
+      // Real payment via Razorpay (falls back to demo if backend is offline)
+      const payNow = async () => {
+        const amount = deposit();
+        if (!f.card || !f.expiry || !f.cvv || !f.cardName || amount <= 0) return;
+
+        const bookingData = {
+          clientName:f.name, clientEmail:f.email, clientPhone:f.phone,
+          eventType:f.eventType, eventDate:f.eventDate, venue:f.venue, notes:f.notes,
+          packageId:pkg.id, packageName:pkg.name,
+          totalAmount:pkg.price, paidAmount:amount,
+        };
+
+        try {
+          // 1. Ask backend to create a Razorpay order
+          const order = await api('/api/bookings/create-order', 'POST', { amount });
+          await loadRazorpay();
+
+          // 2. Open Razorpay's secure payment popup
+          const rzp = new window.Razorpay({
+            key: order.key,
+            amount: order.amount,
+            currency: 'INR',
+            name: 'CINEFRAME',
+            description: pkg.name + ' Package — Deposit',
+            order_id: order.orderId,
+            prefill: { name:f.name, email:f.email, contact:f.phone },
+            theme: { color: '#0ff0fc' },
+            handler: async (resp) => {
+              // 3. Payment done — verify + save booking on backend
+              const result = await api('/api/bookings/confirm', 'POST', {
+                razorpay_order_id: resp.razorpay_order_id,
+                razorpay_payment_id: resp.razorpay_payment_id,
+                razorpay_signature: resp.razorpay_signature,
+                booking: bookingData,
+              });
+              setRef(result.bookingRef);
+              setDone(true);
+            },
+          });
+          rzp.open();
+        } catch (e) {
+          // Backend offline -> DEMO MODE (fake confirmation so preview works)
+          if (e.message.includes('Failed to fetch') || !window.Razorpay) {
+            setRef('CF-' + Date.now().toString(36).toUpperCase());
+            setDone(true);
+          } else {
+            alert('Payment error: ' + e.message);
+          }
+        }
+      };
+
+      const inp = {width:'100%',padding:'12px 16px',borderRadius:12,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',backdropFilter:'blur(10px)',boxSizing:'border-box'};
+      const focusStyle = e => { e.target.style.borderColor='rgba(103,232,249,0.7)'; e.target.style.background='rgba(255,255,255,0.13)'; };
+      const blurStyle  = e => { e.target.style.borderColor='rgba(255,255,255,0.15)'; e.target.style.background='rgba(255,255,255,0.08)'; };
+
+      const StepDot = ({n,label}) => {
+        const done2=step>n, active=step===n;
+        return (
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <div className={done2?'step-done':active?'step-active':'step-inactive'} style={{width:34,height:34,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:800,flexShrink:0}}>
+              {done2?<Icons.Check />:n}
+            </div>
+            <span style={{fontSize:13,fontWeight:600,color:active?'#fff':done2?'#67e8f9':'rgba(255,255,255,0.3)'}}>{label}</span>
+          </div>
+        );
+      };
+
+      if (done) return (
+        <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'40px 24px'}}>
+          <div style={{maxWidth:520,width:'100%',textAlign:'center'}}>
+            <div style={{width:96,height:96,borderRadius:'50%',background:'rgba(16,185,129,0.15)',border:'2px solid rgba(16,185,129,0.6)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 28px',fontSize:40}}>
+              ✅
+            </div>
+            <h1 style={{fontSize:36,fontWeight:900,marginBottom:12}}>Booking Confirmed!</h1>
+            <p style={{color:'rgba(255,255,255,0.5)',marginBottom:32,lineHeight:1.7}}>
+              Reference: <span style={{color:'#67e8f9',fontWeight:700}}>{ref}</span><br/>
+              Confirmation sent to <span style={{color:'#fff'}}>{f.email}</span>
+            </p>
+            <div className="glass" style={{borderRadius:20,padding:'24px',marginBottom:28,textAlign:'left'}}>
+              {[
+                ['Package', pkg?.name],
+                ['Event', f.eventType+' — '+f.eventDate],
+                ['Total', '₹'+pkg?.price.toLocaleString()],
+              ].map(([k,v])=>(
+                <div key={k} style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid rgba(255,255,255,0.08)',fontSize:14}}>
+                  <span style={{color:'rgba(255,255,255,0.5)'}}>{k}</span><span style={{fontWeight:700}}>{v}</span>
+                </div>
+              ))}
+              <div style={{display:'flex',justifyContent:'space-between',padding:'12px 0 4px',fontSize:16}}>
+                <span style={{color:'#34d399',fontWeight:700}}>Deposit Paid</span>
+                <span style={{color:'#34d399',fontWeight:900}}>₹{deposit().toLocaleString()}</span>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',padding:'4px 0',fontSize:14}}>
+                <span style={{color:'#fbbf24'}}>Balance Due on Day</span>
+                <span style={{color:'#fbbf24',fontWeight:700}}>₹{(pkg?.price-deposit()).toLocaleString()}</span>
+              </div>
+            </div>
+            <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
+              <button onClick={()=>setPage('home')} className="gradient-btn" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:15}}>Back to Home</button>
+              {!user && <button onClick={()=>setPage('register')} className="glass" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,cursor:'pointer',color:'#67e8f9',border:'1px solid rgba(103,232,249,0.3)',fontSize:15}}>Create Account</button>}
+            </div>
+          </div>
+        </div>
+      );
+
+      return (
+        <div style={{minHeight:'100vh',padding:'40px 24px'}}>
+          <div style={{maxWidth:720,margin:'0 auto'}}>
+            <div style={{textAlign:'center',marginBottom:36}}>
+              <h1 style={{fontSize:'clamp(2rem,5vw,3rem)',fontWeight:900,marginBottom:8}}>Book a Session</h1>
+              <p style={{color:'rgba(255,255,255,0.5)'}}>Secure your date with a deposit — pay the rest on the day</p>
+            </div>
+
+            {/* Steps */}
+            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,marginBottom:36}}>
+              <StepDot n={1} label="Details" />
+              <div style={{flex:1,maxWidth:50,height:1,background:'rgba(255,255,255,0.12)'}}></div>
+              <StepDot n={2} label="Package" />
+              <div style={{flex:1,maxWidth:50,height:1,background:'rgba(255,255,255,0.12)'}}></div>
+              <StepDot n={3} label="Payment" />
+            </div>
+
+            {/* Step 1 */}
+            {step===1 && (
+              <div className="glass" style={{borderRadius:24,padding:'32px'}}>
+                <h2 style={{fontSize:22,fontWeight:800,marginBottom:24}}>Your Details</h2>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+                  {[['name','Full Name *','Your full name','text'],['email','Email *','your@email.com','email'],['phone','Phone *','+91 98765 43210','tel'],['venue','Venue / Location','City, venue name','text']].map(([k,label,ph,type])=>(
+                    <div key={k} style={{display:'flex',flexDirection:'column',gap:6}}>
+                      <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600}}>{label}</label>
+                      <input style={inp} type={type} placeholder={ph} value={f[k]} onChange={e=>set(k,e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
+                    </div>
+                  ))}
+                  <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                    <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600}}>Event Type *</label>
+                    <select style={{...inp,cursor:'pointer'}} value={f.eventType} onChange={e=>set('eventType',e.target.value)} onFocus={focusStyle} onBlur={blurStyle}>
+                      <option value="">Select type...</option>
+                      {[['wedding','💍 Wedding'],['engagement','💑 Engagement / Pre-wedding'],['birthday','🎂 Birthday / Milestone'],['corporate','🏢 Corporate Event'],['product','📦 Product / Commercial'],['other','✨ Other']].map(([v,l])=><option key={v} value={v}>{l}</option>)}
+                    </select>
+                  </div>
+                  <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                    <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600}}>Event Date *</label>
+                    <input style={inp} type="date" value={f.eventDate} onChange={e=>set('eventDate',e.target.value)} min={new Date().toISOString().split('T')[0]} onFocus={focusStyle} onBlur={blurStyle} />
+                  </div>
+                </div>
+                <div style={{marginTop:16,display:'flex',flexDirection:'column',gap:6}}>
+                  <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600}}>Special Requests / Notes</label>
+                  <textarea style={{...inp,resize:'none',height:90}} placeholder="Tell us about your vision..." value={f.notes} onChange={e=>set('notes',e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',marginTop:28}}>
+                  <button onClick={()=>setPage('home')} className="glass" style={{padding:'12px 24px',borderRadius:12,cursor:'pointer',color:'rgba(255,255,255,0.6)',border:'1px solid rgba(255,255,255,0.12)',fontWeight:600,fontSize:14}}>Cancel</button>
+                  <button onClick={()=>{if(f.name&&f.email&&f.phone&&f.eventType&&f.eventDate)setStep(2);}}
+                    disabled={!f.name||!f.email||!f.phone||!f.eventType||!f.eventDate}
+                    className="gradient-btn" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:14,opacity:(!f.name||!f.email||!f.phone||!f.eventType||!f.eventDate)?0.4:1}}>
+                    Next: Choose Package →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2 */}
+            {step===2 && (
+              <div style={{display:'flex',flexDirection:'column',gap:14}}>
+                {PACKAGES.map(p=>(
+                  <div key={p.id} onClick={()=>set('pkgId',p.id)} className={f.pkgId===p.id?'pkg-selected glass':'glass'}
+                    style={{borderRadius:20,padding:'22px 24px',cursor:'pointer',border:`1px solid ${f.pkgId===p.id?'rgba(103,232,249,0.6)':'rgba(255,255,255,0.1)'}`,transition:'all 0.2s',position:'relative'}}>
+                    {p.badge && <span style={{position:'absolute',top:14,right:14,background:p.accent,padding:'3px 10px',borderRadius:50,fontSize:11,fontWeight:800}}>{p.badge}</span>}
+                    <div style={{display:'flex',alignItems:'flex-start',gap:16}}>
+                      <div style={{width:24,height:24,borderRadius:'50%',border:`2px solid ${f.pkgId===p.id?'#06b6d4':'rgba(255,255,255,0.2)'}`,background:f.pkgId===p.id?'#06b6d4':'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:4,transition:'all 0.2s'}}>
+                        {f.pkgId===p.id&&<span style={{color:'#000',transform:'scale(0.75)',display:'flex'}}><Icons.Check /></span>}
+                      </div>
+                      <div style={{flex:1}}>
+                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:8}}>
+                          <div>
+                            <h3 style={{fontSize:19,fontWeight:900,marginBottom:4}}>{p.name}</h3>
+                            <p style={{color:'rgba(255,255,255,0.5)',fontSize:13,marginBottom:12}}>{p.desc}</p>
+                            <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+                              {p.includes.map(i=><span key={i} style={{fontSize:12,background:'rgba(255,255,255,0.08)',padding:'4px 10px',borderRadius:50,color:'rgba(255,255,255,0.7)'}}>{i}</span>)}
+                            </div>
+                          </div>
+                          <div style={{textAlign:'right',flexShrink:0}}>
+                            <div style={{fontSize:26,fontWeight:900}}>₹{p.price.toLocaleString()}</div>
+                            <div style={{fontSize:12,color:'rgba(103,232,249,0.9)'}}>deposit from ₹{Math.ceil(p.price*0.3).toLocaleString()}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <div style={{display:'flex',justifyContent:'space-between',marginTop:8}}>
+                  <button onClick={()=>setStep(1)} className="glass" style={{padding:'12px 24px',borderRadius:12,cursor:'pointer',color:'rgba(255,255,255,0.6)',border:'1px solid rgba(255,255,255,0.12)',fontWeight:600,fontSize:14}}>← Back</button>
+                  <button onClick={()=>{if(f.pkgId)setStep(3);}} disabled={!f.pkgId}
+                    className="gradient-btn" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:14,opacity:!f.pkgId?0.4:1}}>
+                    Next: Payment →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3 */}
+            {step===3&&pkg&&(
+              <div style={{display:'flex',flexDirection:'column',gap:16}}>
+                {/* Summary */}
+                <div className="glass" style={{borderRadius:20,padding:'22px 24px'}}>
+                  <h3 style={{fontWeight:800,marginBottom:14,fontSize:16}}>Order Summary</h3>
+                  {[['Package',pkg.name],['Event',`${f.eventType} — ${f.eventDate}`],['Total','₹'+pkg.price.toLocaleString()]].map(([k,v])=>(
+                    <div key={k} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid rgba(255,255,255,0.06)',fontSize:14}}>
+                      <span style={{color:'rgba(255,255,255,0.5)'}}>{k}</span><span style={{fontWeight:700}}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Deposit picker */}
+                <div className="glass" style={{borderRadius:20,padding:'22px 24px'}}>
+                  <h3 style={{fontWeight:800,marginBottom:16,fontSize:16}}>How much to pay now?</h3>
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:16}}>
+                    {[['30','30%',`₹${Math.ceil(pkg.price*0.3).toLocaleString()}`],['50','50%',`₹${Math.ceil(pkg.price*0.5).toLocaleString()}`],['100','Full',`₹${pkg.price.toLocaleString()}`],['custom','Custom','Enter amount']].map(([val,label,sub])=>(
+                      <button key={val} onClick={()=>set('payType',val)}
+                        style={{padding:'12px 8px',borderRadius:14,border:`2px solid ${f.payType===val?'rgba(103,232,249,0.7)':'rgba(255,255,255,0.1)'}`,background:f.payType===val?'rgba(103,232,249,0.1)':'rgba(255,255,255,0.05)',cursor:'pointer',textAlign:'center',transition:'all 0.2s'}}>
+                        <div style={{fontWeight:900,fontSize:15,color:'#fff'}}>{label}</div>
+                        <div style={{fontSize:11,color:'rgba(255,255,255,0.45)',marginTop:2}}>{sub}</div>
+                      </button>
+                    ))}
+                  </div>
+                  {f.payType==='custom'&&(
+                    <input style={{...inp,marginBottom:16}} type="number" placeholder={`Min ₹${Math.ceil(pkg.price*0.3).toLocaleString()}`}
+                      value={f.custom} onChange={e=>set('custom',e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
+                  )}
+                  <div className="glass-strong" style={{borderRadius:16,padding:'16px 20px',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
+                    <div>
+                      <div style={{fontSize:12,color:'rgba(255,255,255,0.5)',marginBottom:4}}>Paying now</div>
+                      <div style={{fontSize:28,fontWeight:900,color:'#67e8f9'}}>₹{deposit().toLocaleString()}</div>
+                    </div>
+                    <div style={{textAlign:'right'}}>
+                      <div style={{fontSize:12,color:'rgba(255,255,255,0.5)',marginBottom:4}}>Balance due on the day</div>
+                      <div style={{fontSize:20,fontWeight:800,color:'#fbbf24'}}>₹{(pkg.price-deposit()).toLocaleString()}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card */}
+                <div className="glass" style={{borderRadius:20,padding:'22px 24px'}}>
+                  <h3 style={{fontWeight:800,marginBottom:18,fontSize:16,display:'flex',alignItems:'center',gap:8}}><Icons.CreditCard /> Card Details</h3>
+                  <div style={{display:'flex',flexDirection:'column',gap:14}}>
+                    <div>
+                      <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600,display:'block',marginBottom:6}}>Card Number</label>
+                      <input style={inp} placeholder="1234 5678 9012 3456" value={f.card} maxLength={19}
+                        onChange={e=>{const v=e.target.value.replace(/\D/g,'').slice(0,16);set('card',v.replace(/(.{4})/g,'$1 ').trim());}} onFocus={focusStyle} onBlur={blurStyle} />
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+                      <div>
+                        <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600,display:'block',marginBottom:6}}>Expiry</label>
+                        <input style={inp} placeholder="MM/YY" value={f.expiry} maxLength={5}
+                          onChange={e=>{let v=e.target.value.replace(/\D/g,'').slice(0,4);if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);set('expiry',v);}} onFocus={focusStyle} onBlur={blurStyle} />
+                      </div>
+                      <div>
+                        <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600,display:'block',marginBottom:6}}>CVV</label>
+                        <input style={inp} placeholder="123" type="password" value={f.cvv} maxLength={3}
+                          onChange={e=>set('cvv',e.target.value.replace(/\D/g,'').slice(0,3))} onFocus={focusStyle} onBlur={blurStyle} />
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600,display:'block',marginBottom:6}}>Name on Card</label>
+                      <input style={inp} placeholder="As printed on card" value={f.cardName}
+                        onChange={e=>set('cardName',e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
+                    </div>
+                  </div>
+                  <div style={{marginTop:14,display:'flex',alignItems:'center',gap:8,fontSize:12,color:'rgba(255,255,255,0.35)'}}>
+                    <Icons.Lock /> 256-bit SSL encrypted payment
+                  </div>
+                </div>
+
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12,marginTop:4}}>
+                  <button onClick={()=>setStep(2)} className="glass" style={{padding:'12px 24px',borderRadius:12,cursor:'pointer',color:'rgba(255,255,255,0.6)',border:'1px solid rgba(255,255,255,0.12)',fontWeight:600,fontSize:14}}>← Back</button>
+                  <button onClick={payNow}
+                    disabled={!f.card||!f.expiry||!f.cvv||!f.cardName||deposit()<=0}
+                    className="gradient-btn" style={{padding:'14px 28px',borderRadius:14,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15,opacity:(!f.card||!f.expiry||!f.cvv||!f.cardName||deposit()<=0)?0.4:1}}>
+                    Pay ₹{deposit().toLocaleString()} & Confirm →
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // ── Login ────────────────────────────────────────────────────────────────────
+    function Login({ setUser, setPage }) {
+      const [email, setEmail] = useState('');
+      const [pass, setPass] = useState('');
+      const [err, setErr] = useState('');
+      const inp = {width:'100%',padding:'13px 16px',borderRadius:14,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',boxSizing:'border-box'};
+      const fo = e=>{e.target.style.borderColor='rgba(103,232,249,0.7)';};
+      const bl = e=>{e.target.style.borderColor='rgba(255,255,255,0.15)';};
+
+      const doLogin = async () => {
+        if (!email || !pass) { setErr('Fill all fields'); return; }
+        try {
+          // Try the REAL backend
+          const data = await api('/api/auth/login', 'POST', { email, password: pass });
+          const u = { ...data.user, token: data.token };
+          setUser(u);
+          setPage(u.role === 'admin' ? 'admin' : 'client-portal');
+        } catch (e) {
+          // Backend offline -> DEMO MODE (so the preview still works)
+          if (e.message.includes('Failed to fetch')) {
+            const a = email === 'admin@cineframe.com';
+            setUser({ id: 1, name: email.split('@')[0], email, role: a ? 'admin' : 'client', demo: true });
+            setPage(a ? 'admin' : 'client-portal');
+          } else {
+            setErr(e.message);
+          }
+        }
+      };
+
+      return (
+        <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
+          <div className="glass" style={{maxWidth:420,width:'100%',borderRadius:28,padding:'40px'}}>
+            <h2 style={{fontSize:28,fontWeight:900,marginBottom:6}}>Client Login</h2>
+            <p style={{color:'rgba(255,255,255,0.45)',fontSize:14,marginBottom:28}}>Welcome back</p>
+            {err&&<div style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:12,padding:'10px 14px',fontSize:13,color:'#fca5a5',marginBottom:16}}>{err}</div>}
+            <div style={{display:'flex',flexDirection:'column',gap:14}}>
+              <input style={inp} type="email" placeholder="Email address" value={email} onChange={e=>setEmail(e.target.value)} onFocus={fo} onBlur={bl} />
+              <input style={inp} type="password" placeholder="Password" value={pass} onChange={e=>setPass(e.target.value)} onFocus={fo} onBlur={bl} onKeyDown={e=>{if(e.key==='Enter')doLogin();}} />
+              <button onClick={doLogin}
+                className="gradient-btn" style={{padding:'14px',borderRadius:14,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15}}>
+                Login
+              </button>
+            </div>
+            <div className="glass-dark" style={{borderRadius:14,padding:'14px 16px',marginTop:16,fontSize:12,lineHeight:1.9}}>
+              <div style={{fontWeight:700,color:'rgba(255,255,255,0.7)',marginBottom:4}}>Test credentials:</div>
+              <div style={{color:'rgba(255,255,255,0.45)'}}>Admin: <span style={{color:'#67e8f9'}}>admin@cineframe.com</span> / admin123</div>
+              <div style={{color:'rgba(255,255,255,0.45)'}}>Client: <span style={{color:'#67e8f9'}}>client@example.com</span> / pass123</div>
+            </div>
+            <p style={{textAlign:'center',color:'rgba(255,255,255,0.4)',marginTop:20,fontSize:14}}>
+              No account? <button onClick={()=>setPage('register')} style={{background:'none',border:'none',color:'#67e8f9',cursor:'pointer',fontWeight:700,fontSize:14}}>Register here</button>
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    // ── Register ─────────────────────────────────────────────────────────────────
+    function Register({ setUser, setPage }) {
+      const [name, setName] = useState('');
+      const [email, setEmail] = useState('');
+      const [pass, setPass] = useState('');
+      const inp = {width:'100%',padding:'13px 16px',borderRadius:14,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',boxSizing:'border-box'};
+      const fo=e=>e.target.style.borderColor='rgba(103,232,249,0.7)';
+      const bl=e=>e.target.style.borderColor='rgba(255,255,255,0.15)';
+
+      const doRegister = async () => {
+        if (!name || !email || !pass) return;
+        try {
+          const data = await api('/api/auth/register', 'POST', { name, email, password: pass });
+          setUser({ ...data.user, token: data.token });
+          setPage('client-portal');
+        } catch (e) {
+          if (e.message.includes('Failed to fetch')) {
+            setUser({ id: Date.now(), name, email, role: 'client', demo: true });
+            setPage('client-portal');
+          } else {
+            alert(e.message);
+          }
+        }
+      };
+
+      return (
+        <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
+          <div className="glass" style={{maxWidth:420,width:'100%',borderRadius:28,padding:'40px'}}>
+            <h2 style={{fontSize:28,fontWeight:900,marginBottom:6}}>Create Account</h2>
+            <p style={{color:'rgba(255,255,255,0.45)',fontSize:14,marginBottom:28}}>Get access to your files</p>
+            <div style={{display:'flex',flexDirection:'column',gap:14}}>
+              <input style={inp} type="text" placeholder="Full Name" value={name} onChange={e=>setName(e.target.value)} onFocus={fo} onBlur={bl} />
+              <input style={inp} type="email" placeholder="Email address" value={email} onChange={e=>setEmail(e.target.value)} onFocus={fo} onBlur={bl} />
+              <input style={inp} type="password" placeholder="Password" value={pass} onChange={e=>setPass(e.target.value)} onFocus={fo} onBlur={bl} />
+              <button onClick={doRegister}
+                className="gradient-btn" style={{padding:'14px',borderRadius:14,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15}}>
+                Create Account
+              </button>
+            </div>
+            <p style={{textAlign:'center',color:'rgba(255,255,255,0.4)',marginTop:20,fontSize:14}}>
+              Already have access? <button onClick={()=>setPage('login')} style={{background:'none',border:'none',color:'#67e8f9',cursor:'pointer',fontWeight:700,fontSize:14}}>Login</button>
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    // ── Client Portal ─────────────────────────────────────────────────────────────
+    function ClientPortal({ user, setPage }) {
+      const files = [
+        {id:1,name:'Wedding_Photos.zip',  type:'photos',size:'2.4 GB',date:'2024-01-15',event:'Raj & Priya Wedding'},
+        {id:2,name:'Wedding_Film_4K.mp4', type:'video', size:'4.8 GB',date:'2024-01-15',event:'Raj & Priya Wedding'},
+        {id:3,name:'Event_Highlights.zip',type:'photos',size:'1.2 GB',date:'2024-02-20',event:'Corporate Gala'},
+      ];
+      const bookings = [
+        {id:'CF-A1B2C3',pkg:'Premium',date:'2024-12-20',event:'Wedding',paid:22500,total:45000,status:'Confirmed'},
+      ];
+      return (
+        <div style={{minHeight:'100vh',padding:'40px 24px'}}>
+          <div style={{maxWidth:1000,margin:'0 auto'}}>
+            <h1 style={{fontSize:36,fontWeight:900,marginBottom:6}}>Welcome, {user.name}!</h1>
+            <p style={{color:'rgba(255,255,255,0.45)',marginBottom:36}}>Manage your bookings and download your files</p>
+
+            <div style={{marginBottom:36}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16,flexWrap:'wrap',gap:12}}>
+                <h2 style={{fontSize:22,fontWeight:800}}>My Bookings</h2>
+                <button onClick={()=>setPage('booking')} className="gradient-btn" style={{padding:'10px 20px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:14}}>+ New Booking</button>
+              </div>
+              {bookings.map(b=>(
+                <div key={b.id} className="glass" style={{borderRadius:20,padding:'22px 24px',marginBottom:12}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
+                    <div>
+                      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
+                        <span style={{fontWeight:800,fontSize:18}}>{b.pkg} Package</span>
+                        <span style={{background:'rgba(16,185,129,0.15)',color:'#34d399',fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:50}}>{b.status}</span>
+                      </div>
+                      <p style={{color:'rgba(255,255,255,0.5)',fontSize:13}}>{b.event} • {b.date}</p>
+                      <p style={{color:'rgba(255,255,255,0.3)',fontSize:12,marginTop:2}}>Ref: {b.id}</p>
+                    </div>
+                    <div style={{textAlign:'right'}}>
+                      <div style={{color:'#34d399',fontWeight:800,fontSize:16}}>₹{b.paid.toLocaleString()} paid</div>
+                      <div style={{color:'#fbbf24',fontSize:13}}>₹{(b.total-b.paid).toLocaleString()} due on day</div>
+                      <div style={{color:'rgba(255,255,255,0.3)',fontSize:12}}>Total: ₹{b.total.toLocaleString()}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <h2 style={{fontSize:22,fontWeight:800,marginBottom:16}}>My Files</h2>
+            {files.map(file=>(
+              <div key={file.id} className="glass" style={{borderRadius:20,padding:'20px 24px',marginBottom:12,transition:'border-color 0.2s'}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(103,232,249,0.4)'}
+                onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(255,255,255,0.15)'}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:16}}>
+                  <div>
+                    <h3 style={{fontWeight:800,fontSize:17,marginBottom:4}}>{file.name}</h3>
+                    <p style={{color:'rgba(255,255,255,0.45)',fontSize:13,marginBottom:8}}>{file.event}</p>
+                    <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+                      <span style={{fontSize:12,color:'rgba(255,255,255,0.4)'}}>{file.size}</span>
+                      <span style={{fontSize:12,color:'rgba(255,255,255,0.4)'}}>{file.date}</span>
+                      <span style={{fontSize:12,background:'rgba(103,232,249,0.1)',color:'#67e8f9',padding:'3px 10px',borderRadius:50}}>{file.type==='video'?'🎬 Video':'📸 Photos'}</span>
+                    </div>
+                  </div>
+                  <button className="gradient-btn" style={{display:'flex',alignItems:'center',gap:8,padding:'11px 22px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:14,whiteSpace:'nowrap'}}>
+                    <Icons.Download /> Download
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // ── Admin ─────────────────────────────────────────────────────────────────────
+    function AdminDash({ setPage }) {
+      const [galleries, setGalleries] = useState([
+        {id:1,name:'Raj & Priya Wedding',items:450,date:'2024-01-15'},
+        {id:2,name:'Corporate Gala 2024',items:320,date:'2024-02-20'},
+      ]);
+      const [bookings] = useState([
+        {id:'CF-A1B2C3',client:'John Client', pkg:'Premium',  event:'Wedding',   date:'2024-12-20',paid:22500,total:45000,status:'Confirmed'},
+        {id:'CF-D4E5F6',client:'Priya Sharma',pkg:'Elite',    event:'Wedding',   date:'2025-02-14',paid:22500,total:75000,status:'Pending'},
+        {id:'CF-G7H8I9',client:'Ravi Corp',   pkg:'Essential',event:'Corporate', date:'2025-01-10',paid:25000,total:25000,status:'Fully Paid'},
+      ]);
+      const [tab, setTab] = useState('bookings');
+      const [newG, setNewG] = useState('');
+      const totalPaid = bookings.reduce((s,b)=>s+b.paid,0);
+      const totalPending = bookings.reduce((s,b)=>s+(b.total-b.paid),0);
+
+      const statusColor = s => s==='Fully Paid'?{bg:'rgba(16,185,129,0.15)',c:'#34d399'}:s==='Confirmed'?{bg:'rgba(103,232,249,0.15)',c:'#67e8f9'}:{bg:'rgba(251,191,36,0.15)',c:'#fbbf24'};
+
+      return (
+        <div style={{minHeight:'100vh',padding:'40px 24px'}}>
+          <div style={{maxWidth:1100,margin:'0 auto'}}>
+            <h1 style={{fontSize:36,fontWeight:900,marginBottom:28}}>Admin Dashboard</h1>
+
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:14,marginBottom:28}}>
+              {[['📅','Bookings',bookings.length],['💰','Revenue','₹'+totalPaid.toLocaleString()],['⏳','Pending','₹'+totalPending.toLocaleString()],['🗂️','Galleries',galleries.length]].map(([icon,label,val])=>(
+                <div key={label} className="glass" style={{borderRadius:18,padding:'20px',textAlign:'center'}}>
+                  <div style={{fontSize:30,marginBottom:6}}>{icon}</div>
+                  <div style={{fontSize:24,fontWeight:900,color:'#67e8f9',marginBottom:2}}>{val}</div>
+                  <div style={{fontSize:13,color:'rgba(255,255,255,0.45)'}}>{label}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{display:'flex',gap:10,marginBottom:20}}>
+              {['bookings','galleries'].map(t=>(
+                <button key={t} onClick={()=>setTab(t)} className={tab===t?'gradient-btn':'glass'}
+                  style={{padding:'10px 22px',borderRadius:12,fontWeight:700,fontSize:14,cursor:'pointer',border:'none',color:'#fff',textTransform:'capitalize'}}>
+                  {t==='bookings'?'📅 Bookings':'🗂️ Galleries'}
+                </button>
+              ))}
+            </div>
+
+            {tab==='bookings'&&bookings.map(b=>{
+              const sc=statusColor(b.status);
+              return (
+                <div key={b.id} className="glass" style={{borderRadius:20,padding:'20px 24px',marginBottom:12}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
+                    <div>
+                      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4,flexWrap:'wrap'}}>
+                        <span style={{fontWeight:800,fontSize:17}}>{b.client}</span>
+                        <span style={{background:sc.bg,color:sc.c,fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:50}}>{b.status}</span>
+                      </div>
+                      <p style={{color:'rgba(255,255,255,0.5)',fontSize:13}}>{b.pkg} • {b.event} • {b.date}</p>
+                      <p style={{color:'rgba(255,255,255,0.3)',fontSize:12,marginTop:2}}>Ref: {b.id}</p>
+                    </div>
+                    <div style={{textAlign:'right'}}>
+                      <div style={{color:'#34d399',fontWeight:800}}>₹{b.paid.toLocaleString()} received</div>
+                      {b.total>b.paid&&<div style={{color:'#fbbf24',fontSize:13}}>₹{(b.total-b.paid).toLocaleString()} pending</div>}
+                      <div style={{color:'rgba(255,255,255,0.3)',fontSize:12}}>Total: ₹{b.total.toLocaleString()}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {tab==='galleries'&&(
+              <>
+                <div className="glass" style={{borderRadius:20,padding:'22px 24px',marginBottom:16}}>
+                  <h2 style={{fontSize:18,fontWeight:800,marginBottom:14}}>Create New Gallery</h2>
+                  <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+                    <input value={newG} onChange={e=>setNewG(e.target.value)}
+                      onKeyDown={e=>{if(e.key==='Enter'&&newG.trim()){setGalleries([...galleries,{id:Date.now(),name:newG,items:0,date:new Date().toISOString().split('T')[0]}]);setNewG('');}}}
+                      placeholder="Gallery name (e.g., Wedding - John & Jane)"
+                      style={{flex:1,minWidth:200,padding:'12px 16px',borderRadius:12,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none'}} />
+                    <button onClick={()=>{if(newG.trim()){setGalleries([...galleries,{id:Date.now(),name:newG,items:0,date:new Date().toISOString().split('T')[0]}]);setNewG('');}}}
+                      className="gradient-btn" style={{padding:'12px 22px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',display:'flex',alignItems:'center',gap:8,fontSize:14}}>
+                      <Icons.Plus /> Create
+                    </button>
+                  </div>
+                </div>
+                {galleries.map(g=>(
+                  <div key={g.id} className="glass" style={{borderRadius:20,padding:'20px 24px',marginBottom:12}}>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
+                      <div>
+                        <h3 style={{fontWeight:800,fontSize:17}}>{g.name}</h3>
+                        <p style={{color:'rgba(255,255,255,0.45)',fontSize:13}}>{g.items} files • {g.date}</p>
+                      </div>
+                      <div style={{display:'flex',gap:8}}>
+                        <button style={{padding:'8px 18px',borderRadius:10,background:'rgba(59,130,246,0.2)',border:'1px solid rgba(59,130,246,0.4)',color:'#93c5fd',fontWeight:700,cursor:'pointer',fontSize:13}}>Edit</button>
+                        <button onClick={()=>setGalleries(galleries.filter(x=>x.id!==g.id))}
+                          style={{padding:'8px 18px',borderRadius:10,background:'rgba(239,68,68,0.15)',border:'1px solid rgba(239,68,68,0.3)',color:'#fca5a5',fontWeight:700,cursor:'pointer',fontSize:13,display:'flex',alignItems:'center',gap:6}}>
+                          <Icons.Trash /> Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+
+  <style>
+    @media (max-width: 768px) {
+      .hidden-mobile { display: none !important; }
+      .show-mobile { display: block !important; }
+    }
+    @media (min-width: 769px) {
+      .hidden-mobile { display: flex !important; }
+      .show-mobile { display: none !important; }
+    }
+  </style>
+</body>
+</html>
