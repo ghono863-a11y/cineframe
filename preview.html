@@ -225,13 +225,13 @@
   <div id="root" style="position:relative;z-index:1;"></div>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
 
     // ========================================================================
     //  API CONFIG — automatically picks the right backend.
     // ========================================================================
     //  ▼▼▼  AFTER you deploy the backend to Render, paste that URL here  ▼▼▼
-    const LIVE_BACKEND_URL = 'https://PASTE-YOUR-RENDER-URL-HERE.onrender.com';
+    const LIVE_BACKEND_URL = 'https://cineframe-p56x.onrender.com';
     //  ▲▲▲  (it ends in .onrender.com — I'll tell you exactly when)  ▲▲▲
 
     // When opened on your PC -> use local server.
@@ -290,7 +290,7 @@
             {page==='login'         && <Login setUser={setUser} setPage={setPage} />}
             {page==='register'      && <Register setUser={setUser} setPage={setPage} />}
             {page==='client-portal' && user && <ClientPortal user={user} setPage={setPage} />}
-            {page==='admin'         && user?.role==='admin' && <AdminDash setPage={setPage} />}
+            {page==='admin'         && user?.role==='admin' && <AdminDash setPage={setPage} user={user} />}
           </div>
         </div>
       );
@@ -969,65 +969,89 @@
 
     // ── Client Portal ─────────────────────────────────────────────────────────────
     function ClientPortal({ user, setPage }) {
-      const files = [
-        {id:1,name:'Wedding_Photos.zip',  type:'photos',size:'2.4 GB',date:'2024-01-15',event:'Raj & Priya Wedding'},
-        {id:2,name:'Wedding_Film_4K.mp4', type:'video', size:'4.8 GB',date:'2024-01-15',event:'Raj & Priya Wedding'},
-        {id:3,name:'Event_Highlights.zip',type:'photos',size:'1.2 GB',date:'2024-02-20',event:'Corporate Gala'},
-      ];
-      const bookings = [
-        {id:'CF-A1B2C3',pkg:'Premium',date:'2024-12-20',event:'Wedding',paid:22500,total:45000,status:'Confirmed'},
-      ];
+      const [deliveries, setDeliveries] = useState([]);
+      const [bookings, setBookings] = useState([]);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        (async () => {
+          try {
+            const [d, b] = await Promise.all([
+              api('/api/galleries/mine', 'GET', null, user.token),
+              api('/api/bookings/mine', 'GET', null, user.token),
+            ]);
+            setDeliveries(d || []);
+            setBookings(b || []);
+          } catch (e) {
+            // backend offline -> demo fallback
+            setDeliveries([]);
+            setBookings([]);
+          }
+          setLoading(false);
+        })();
+      }, []);
+
       return (
         <div style={{minHeight:'100vh',padding:'40px 24px'}}>
           <div style={{maxWidth:1000,margin:'0 auto'}}>
             <h1 style={{fontSize:36,fontWeight:900,marginBottom:6}}>Welcome, {user.name}!</h1>
-            <p style={{color:'rgba(255,255,255,0.45)',marginBottom:36}}>Manage your bookings and download your files</p>
+            <p style={{color:'rgba(255,255,255,0.45)',marginBottom:36}}>Your bookings and file deliveries</p>
 
             <div style={{marginBottom:36}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16,flexWrap:'wrap',gap:12}}>
                 <h2 style={{fontSize:22,fontWeight:800}}>My Bookings</h2>
                 <button onClick={()=>setPage('booking')} className="gradient-btn" style={{padding:'10px 20px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:14}}>+ New Booking</button>
               </div>
+              {loading && <p style={{color:'rgba(255,255,255,0.4)',fontSize:14}}>Loading...</p>}
+              {!loading && bookings.length===0 && <p style={{color:'rgba(255,255,255,0.4)',fontSize:14}}>No bookings yet.</p>}
               {bookings.map(b=>(
-                <div key={b.id} className="glass" style={{borderRadius:20,padding:'22px 24px',marginBottom:12}}>
+                <div key={b._id||b.bookingRef} className="glass" style={{borderRadius:20,padding:'22px 24px',marginBottom:12}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
                     <div>
                       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
-                        <span style={{fontWeight:800,fontSize:18}}>{b.pkg} Package</span>
+                        <span style={{fontWeight:800,fontSize:18}}>{b.packageName} Package</span>
                         <span style={{background:'rgba(16,185,129,0.15)',color:'#34d399',fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:50}}>{b.status}</span>
                       </div>
-                      <p style={{color:'rgba(255,255,255,0.5)',fontSize:13}}>{b.event} • {b.date}</p>
-                      <p style={{color:'rgba(255,255,255,0.3)',fontSize:12,marginTop:2}}>Ref: {b.id}</p>
+                      <p style={{color:'rgba(255,255,255,0.5)',fontSize:13}}>{b.eventType} • {b.eventDate}</p>
+                      <p style={{color:'rgba(255,255,255,0.3)',fontSize:12,marginTop:2}}>Ref: {b.bookingRef}</p>
                     </div>
                     <div style={{textAlign:'right'}}>
-                      <div style={{color:'#34d399',fontWeight:800,fontSize:16}}>₹{b.paid.toLocaleString()} paid</div>
-                      <div style={{color:'#fbbf24',fontSize:13}}>₹{(b.total-b.paid).toLocaleString()} due on day</div>
-                      <div style={{color:'rgba(255,255,255,0.3)',fontSize:12}}>Total: ₹{b.total.toLocaleString()}</div>
+                      <div style={{color:'#34d399',fontWeight:800,fontSize:16}}>₹{(b.paidAmount||0).toLocaleString()} paid</div>
+                      <div style={{color:'#fbbf24',fontSize:13}}>₹{(b.balanceDue||0).toLocaleString()} due on day</div>
+                      <div style={{color:'rgba(255,255,255,0.3)',fontSize:12}}>Total: ₹{(b.totalAmount||0).toLocaleString()}</div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            <h2 style={{fontSize:22,fontWeight:800,marginBottom:16}}>My Files</h2>
-            {files.map(file=>(
-              <div key={file.id} className="glass" style={{borderRadius:20,padding:'20px 24px',marginBottom:12,transition:'border-color 0.2s'}}
-                onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(103,232,249,0.4)'}
-                onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(255,255,255,0.15)'}>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:16}}>
-                  <div>
-                    <h3 style={{fontWeight:800,fontSize:17,marginBottom:4}}>{file.name}</h3>
-                    <p style={{color:'rgba(255,255,255,0.45)',fontSize:13,marginBottom:8}}>{file.event}</p>
-                    <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
-                      <span style={{fontSize:12,color:'rgba(255,255,255,0.4)'}}>{file.size}</span>
-                      <span style={{fontSize:12,color:'rgba(255,255,255,0.4)'}}>{file.date}</span>
-                      <span style={{fontSize:12,background:'rgba(103,232,249,0.1)',color:'#67e8f9',padding:'3px 10px',borderRadius:50}}>{file.type==='video'?'🎬 Video':'📸 Photos'}</span>
-                    </div>
-                  </div>
-                  <button className="gradient-btn" style={{display:'flex',alignItems:'center',gap:8,padding:'11px 22px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:14,whiteSpace:'nowrap'}}>
-                    <Icons.Download /> Download
-                  </button>
+            <h2 style={{fontSize:22,fontWeight:800,marginBottom:16}}>My File Deliveries</h2>
+            {!loading && deliveries.length===0 && (
+              <div className="glass" style={{borderRadius:20,padding:'28px 24px',textAlign:'center',color:'rgba(255,255,255,0.45)',fontSize:14}}>
+                No files delivered yet. Your photographer will share them here after your event. 📸
+              </div>
+            )}
+            {deliveries.map(g=>(
+              <div key={g._id} className="glass" style={{borderRadius:20,padding:'22px 24px',marginBottom:12}}>
+                <div style={{marginBottom:14}}>
+                  <h3 style={{fontWeight:800,fontSize:18}}>{g.name}</h3>
+                  <p style={{color:'rgba(255,255,255,0.4)',fontSize:13}}>{g.date} • {g.files.length} file{g.files.length!==1?'s':''}</p>
                 </div>
+                {g.files.map((file,i)=>(
+                  <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12,padding:'12px 0',borderTop:i>0?'1px solid rgba(255,255,255,0.07)':'none'}}>
+                    <div style={{display:'flex',alignItems:'center',gap:10}}>
+                      <span style={{fontSize:12,background:'rgba(103,232,249,0.1)',color:'#67e8f9',padding:'4px 10px',borderRadius:50}}>{file.type==='video'?'🎬 Video':'📸 Photos'}</span>
+                      <div>
+                        <div style={{fontWeight:700,fontSize:15}}>{file.name}</div>
+                        {file.size&&<div style={{fontSize:12,color:'rgba(255,255,255,0.35)'}}>{file.size}</div>}
+                      </div>
+                    </div>
+                    <a href={file.link} target="_blank" rel="noopener noreferrer"
+                      className="gradient-btn" style={{display:'flex',alignItems:'center',gap:8,padding:'10px 20px',borderRadius:12,fontWeight:700,color:'#fff',fontSize:14,textDecoration:'none',whiteSpace:'nowrap'}}>
+                      <Icons.Download /> Download
+                    </a>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
@@ -1036,22 +1060,63 @@
     }
 
     // ── Admin ─────────────────────────────────────────────────────────────────────
-    function AdminDash({ setPage }) {
-      const [galleries, setGalleries] = useState([
-        {id:1,name:'Raj & Priya Wedding',items:450,date:'2024-01-15'},
-        {id:2,name:'Corporate Gala 2024',items:320,date:'2024-02-20'},
-      ]);
-      const [bookings] = useState([
-        {id:'CF-A1B2C3',client:'John Client', pkg:'Premium',  event:'Wedding',   date:'2024-12-20',paid:22500,total:45000,status:'Confirmed'},
-        {id:'CF-D4E5F6',client:'Priya Sharma',pkg:'Elite',    event:'Wedding',   date:'2025-02-14',paid:22500,total:75000,status:'Pending'},
-        {id:'CF-G7H8I9',client:'Ravi Corp',   pkg:'Essential',event:'Corporate', date:'2025-01-10',paid:25000,total:25000,status:'Fully Paid'},
-      ]);
+    function AdminDash({ setPage, user }) {
+      const [bookings, setBookings] = useState([]);
+      const [deliveries, setDeliveries] = useState([]);
+      const [stats, setStats] = useState({ revenue:0, pending:0, count:0 });
       const [tab, setTab] = useState('bookings');
-      const [newG, setNewG] = useState('');
-      const totalPaid = bookings.reduce((s,b)=>s+b.paid,0);
-      const totalPending = bookings.reduce((s,b)=>s+(b.total-b.paid),0);
+      const [loading, setLoading] = useState(true);
+
+      // New-delivery form state
+      const [dName, setDName] = useState('');
+      const [dEmail, setDEmail] = useState('');
+      const [dDate, setDDate] = useState('');
+      const [dFiles, setDFiles] = useState([{ name:'', type:'photos', size:'', link:'' }]);
+      const [saving, setSaving] = useState(false);
+      const [msg, setMsg] = useState('');
+
+      const loadData = async () => {
+        try {
+          const [bRes, gRes] = await Promise.all([
+            api('/api/bookings/all', 'GET', null, user.token),
+            api('/api/galleries/all', 'GET', null, user.token),
+          ]);
+          setBookings(bRes.bookings || []);
+          setStats({ revenue:bRes.revenue||0, pending:bRes.pending||0, count:bRes.count||0 });
+          setDeliveries(gRes || []);
+        } catch (e) { /* offline */ }
+        setLoading(false);
+      };
+      useEffect(() => { loadData(); }, []);
+
+      const setFile = (i,k,v) => setDFiles(fs => fs.map((f,idx)=> idx===i ? {...f,[k]:v} : f));
+      const addFileRow = () => setDFiles(fs => [...fs, { name:'', type:'photos', size:'', link:'' }]);
+      const removeFileRow = (i) => setDFiles(fs => fs.filter((_,idx)=>idx!==i));
+
+      const createDelivery = async () => {
+        setMsg('');
+        if (!dName.trim() || !dEmail.trim()) { setMsg('Event name and client email are required'); return; }
+        const validFiles = dFiles.filter(f => f.name.trim() && f.link.trim());
+        if (validFiles.length === 0) { setMsg('Add at least one file with a name and a link'); return; }
+        setSaving(true);
+        try {
+          await api('/api/galleries', 'POST', {
+            name: dName.trim(), clientEmail: dEmail.trim(), date: dDate || new Date().toISOString().split('T')[0],
+            files: validFiles,
+          }, user.token);
+          setMsg('✅ Delivery sent to ' + dEmail);
+          setDName(''); setDEmail(''); setDDate(''); setDFiles([{ name:'', type:'photos', size:'', link:'' }]);
+          loadData();
+        } catch (e) { setMsg('Error: ' + e.message); }
+        setSaving(false);
+      };
+
+      const deleteDelivery = async (id) => {
+        try { await api('/api/galleries/'+id, 'DELETE', null, user.token); setDeliveries(d=>d.filter(x=>x._id!==id)); } catch(e){}
+      };
 
       const statusColor = s => s==='Fully Paid'?{bg:'rgba(16,185,129,0.15)',c:'#34d399'}:s==='Confirmed'?{bg:'rgba(103,232,249,0.15)',c:'#67e8f9'}:{bg:'rgba(251,191,36,0.15)',c:'#fbbf24'};
+      const inp = {flex:1,minWidth:120,padding:'11px 14px',borderRadius:10,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',boxSizing:'border-box'};
 
       return (
         <div style={{minHeight:'100vh',padding:'40px 24px'}}>
@@ -1059,7 +1124,7 @@
             <h1 style={{fontSize:36,fontWeight:900,marginBottom:28}}>Admin Dashboard</h1>
 
             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:14,marginBottom:28}}>
-              {[['📅','Bookings',bookings.length],['💰','Revenue','₹'+totalPaid.toLocaleString()],['⏳','Pending','₹'+totalPending.toLocaleString()],['🗂️','Galleries',galleries.length]].map(([icon,label,val])=>(
+              {[['📅','Bookings',stats.count],['💰','Revenue','₹'+stats.revenue.toLocaleString()],['⏳','Pending','₹'+stats.pending.toLocaleString()],['🗂️','Deliveries',deliveries.length]].map(([icon,label,val])=>(
                 <div key={label} className="glass" style={{borderRadius:18,padding:'20px',textAlign:'center'}}>
                   <div style={{fontSize:30,marginBottom:6}}>{icon}</div>
                   <div style={{fontSize:24,fontWeight:900,color:'#67e8f9',marginBottom:2}}>{val}</div>
@@ -1069,66 +1134,89 @@
             </div>
 
             <div style={{display:'flex',gap:10,marginBottom:20}}>
-              {['bookings','galleries'].map(t=>(
+              {['bookings','deliveries'].map(t=>(
                 <button key={t} onClick={()=>setTab(t)} className={tab===t?'gradient-btn':'glass'}
                   style={{padding:'10px 22px',borderRadius:12,fontWeight:700,fontSize:14,cursor:'pointer',border:'none',color:'#fff',textTransform:'capitalize'}}>
-                  {t==='bookings'?'📅 Bookings':'🗂️ Galleries'}
+                  {t==='bookings'?'📅 Bookings':'🗂️ File Deliveries'}
                 </button>
               ))}
             </div>
 
-            {tab==='bookings'&&bookings.map(b=>{
+            {loading && <p style={{color:'rgba(255,255,255,0.4)',fontSize:14}}>Loading...</p>}
+
+            {tab==='bookings' && !loading && bookings.length===0 && <p style={{color:'rgba(255,255,255,0.4)',fontSize:14}}>No bookings yet.</p>}
+            {tab==='bookings' && bookings.map(b=>{
               const sc=statusColor(b.status);
               return (
-                <div key={b.id} className="glass" style={{borderRadius:20,padding:'20px 24px',marginBottom:12}}>
+                <div key={b._id} className="glass" style={{borderRadius:20,padding:'20px 24px',marginBottom:12}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
                     <div>
                       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4,flexWrap:'wrap'}}>
-                        <span style={{fontWeight:800,fontSize:17}}>{b.client}</span>
+                        <span style={{fontWeight:800,fontSize:17}}>{b.clientName}</span>
                         <span style={{background:sc.bg,color:sc.c,fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:50}}>{b.status}</span>
                       </div>
-                      <p style={{color:'rgba(255,255,255,0.5)',fontSize:13}}>{b.pkg} • {b.event} • {b.date}</p>
-                      <p style={{color:'rgba(255,255,255,0.3)',fontSize:12,marginTop:2}}>Ref: {b.id}</p>
+                      <p style={{color:'rgba(255,255,255,0.5)',fontSize:13}}>{b.packageName} • {b.eventType} • {b.eventDate}</p>
+                      <p style={{color:'rgba(255,255,255,0.3)',fontSize:12,marginTop:2}}>{b.clientEmail} • Ref: {b.bookingRef}</p>
                     </div>
                     <div style={{textAlign:'right'}}>
-                      <div style={{color:'#34d399',fontWeight:800}}>₹{b.paid.toLocaleString()} received</div>
-                      {b.total>b.paid&&<div style={{color:'#fbbf24',fontSize:13}}>₹{(b.total-b.paid).toLocaleString()} pending</div>}
-                      <div style={{color:'rgba(255,255,255,0.3)',fontSize:12}}>Total: ₹{b.total.toLocaleString()}</div>
+                      <div style={{color:'#34d399',fontWeight:800}}>₹{(b.paidAmount||0).toLocaleString()} received</div>
+                      {b.balanceDue>0&&<div style={{color:'#fbbf24',fontSize:13}}>₹{b.balanceDue.toLocaleString()} pending</div>}
+                      <div style={{color:'rgba(255,255,255,0.3)',fontSize:12}}>Total: ₹{(b.totalAmount||0).toLocaleString()}</div>
                     </div>
                   </div>
                 </div>
               );
             })}
 
-            {tab==='galleries'&&(
+            {tab==='deliveries' && (
               <>
-                <div className="glass" style={{borderRadius:20,padding:'22px 24px',marginBottom:16}}>
-                  <h2 style={{fontSize:18,fontWeight:800,marginBottom:14}}>Create New Gallery</h2>
-                  <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
-                    <input value={newG} onChange={e=>setNewG(e.target.value)}
-                      onKeyDown={e=>{if(e.key==='Enter'&&newG.trim()){setGalleries([...galleries,{id:Date.now(),name:newG,items:0,date:new Date().toISOString().split('T')[0]}]);setNewG('');}}}
-                      placeholder="Gallery name (e.g., Wedding - John & Jane)"
-                      style={{flex:1,minWidth:200,padding:'12px 16px',borderRadius:12,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none'}} />
-                    <button onClick={()=>{if(newG.trim()){setGalleries([...galleries,{id:Date.now(),name:newG,items:0,date:new Date().toISOString().split('T')[0]}]);setNewG('');}}}
-                      className="gradient-btn" style={{padding:'12px 22px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',display:'flex',alignItems:'center',gap:8,fontSize:14}}>
-                      <Icons.Plus /> Create
+                <div className="glass" style={{borderRadius:20,padding:'24px',marginBottom:16}}>
+                  <h2 style={{fontSize:18,fontWeight:800,marginBottom:6}}>Send Files to a Client</h2>
+                  <p style={{color:'rgba(255,255,255,0.4)',fontSize:13,marginBottom:18}}>Upload photos/videos to Google Drive or Dropbox, then paste the share link below. The client sees it when they log in.</p>
+
+                  <div style={{display:'flex',gap:12,flexWrap:'wrap',marginBottom:12}}>
+                    <input value={dName} onChange={e=>setDName(e.target.value)} placeholder="Event name (e.g. Raj & Priya Wedding)" style={inp} />
+                    <input value={dEmail} onChange={e=>setDEmail(e.target.value)} placeholder="Client's login email" style={inp} />
+                    <input type="date" value={dDate} onChange={e=>setDDate(e.target.value)} style={{...inp,maxWidth:170}} />
+                  </div>
+
+                  <div style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,0.6)',margin:'6px 0 8px'}}>Files / Links</div>
+                  {dFiles.map((f,i)=>(
+                    <div key={i} style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:8,alignItems:'center'}}>
+                      <input value={f.name} onChange={e=>setFile(i,'name',e.target.value)} placeholder="File name (e.g. Wedding Photos)" style={{...inp,minWidth:150}} />
+                      <select value={f.type} onChange={e=>setFile(i,'type',e.target.value)} style={{...inp,maxWidth:120,cursor:'pointer'}}>
+                        <option value="photos">📸 Photos</option>
+                        <option value="video">🎬 Video</option>
+                      </select>
+                      <input value={f.size} onChange={e=>setFile(i,'size',e.target.value)} placeholder="Size (e.g. 2.4 GB)" style={{...inp,maxWidth:130}} />
+                      <input value={f.link} onChange={e=>setFile(i,'link',e.target.value)} placeholder="Paste Google Drive / Dropbox link" style={{...inp,minWidth:200}} />
+                      {dFiles.length>1 && <button onClick={()=>removeFileRow(i)} style={{padding:'10px 12px',borderRadius:10,background:'rgba(239,68,68,0.15)',border:'1px solid rgba(239,68,68,0.3)',color:'#fca5a5',cursor:'pointer',fontSize:13}}>✕</button>}
+                    </div>
+                  ))}
+                  <button onClick={addFileRow} className="glass" style={{padding:'8px 16px',borderRadius:10,color:'#67e8f9',border:'1px solid rgba(103,232,249,0.3)',cursor:'pointer',fontSize:13,fontWeight:700,marginBottom:14}}>+ Add another file</button>
+
+                  {msg && <div style={{fontSize:13,marginBottom:12,color:msg.startsWith('✅')?'#34d399':'#fca5a5'}}>{msg}</div>}
+
+                  <div>
+                    <button onClick={createDelivery} disabled={saving}
+                      className="gradient-btn" style={{padding:'12px 26px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:14,opacity:saving?0.5:1}}>
+                      {saving ? 'Sending...' : '📤 Send to Client'}
                     </button>
                   </div>
                 </div>
-                {galleries.map(g=>(
-                  <div key={g.id} className="glass" style={{borderRadius:20,padding:'20px 24px',marginBottom:12}}>
-                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
+
+                {!loading && deliveries.length===0 && <p style={{color:'rgba(255,255,255,0.4)',fontSize:14}}>No deliveries sent yet.</p>}
+                {deliveries.map(g=>(
+                  <div key={g._id} className="glass" style={{borderRadius:20,padding:'20px 24px',marginBottom:12}}>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
                       <div>
                         <h3 style={{fontWeight:800,fontSize:17}}>{g.name}</h3>
-                        <p style={{color:'rgba(255,255,255,0.45)',fontSize:13}}>{g.items} files • {g.date}</p>
+                        <p style={{color:'rgba(255,255,255,0.45)',fontSize:13}}>To: {g.clientEmail} • {g.files.length} file{g.files.length!==1?'s':''} • {g.date}</p>
                       </div>
-                      <div style={{display:'flex',gap:8}}>
-                        <button style={{padding:'8px 18px',borderRadius:10,background:'rgba(59,130,246,0.2)',border:'1px solid rgba(59,130,246,0.4)',color:'#93c5fd',fontWeight:700,cursor:'pointer',fontSize:13}}>Edit</button>
-                        <button onClick={()=>setGalleries(galleries.filter(x=>x.id!==g.id))}
-                          style={{padding:'8px 18px',borderRadius:10,background:'rgba(239,68,68,0.15)',border:'1px solid rgba(239,68,68,0.3)',color:'#fca5a5',fontWeight:700,cursor:'pointer',fontSize:13,display:'flex',alignItems:'center',gap:6}}>
-                          <Icons.Trash /> Delete
-                        </button>
-                      </div>
+                      <button onClick={()=>deleteDelivery(g._id)}
+                        style={{padding:'8px 18px',borderRadius:10,background:'rgba(239,68,68,0.15)',border:'1px solid rgba(239,68,68,0.3)',color:'#fca5a5',fontWeight:700,cursor:'pointer',fontSize:13,display:'flex',alignItems:'center',gap:6}}>
+                        <Icons.Trash /> Delete
+                      </button>
                     </div>
                   </div>
                 ))}

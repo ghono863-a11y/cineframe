@@ -82,13 +82,12 @@ const bookingSchema = new mongoose.Schema({
 });
 
 const gallerySchema = new mongoose.Schema({
-  name:        String,
-  description: String,
+  name:        String,                 // e.g. "Raj & Priya Wedding"
+  clientEmail: String,                 // which client this delivery is for
   date:        String,
   type:        String,
-  owner:       String,
-  files:       [{ fileId: String, name: String, type: String, size: String, path: String }],
-  accessList:  [String],
+  // each file = a name + a Google Drive / Dropbox share link
+  files:       [{ name: String, type: String, size: String, link: String }],
   createdAt:   { type: Date, default: Date.now },
 });
 
@@ -264,63 +263,56 @@ app.get('/api/bookings/all', auth, async (req, res) => {
 });
 
 // ============================================================================
-//  7. GALLERY ROUTES (photo/video management)
+//  7. FILE DELIVERY ROUTES (Google Drive / Dropbox link based)
 // ============================================================================
-app.get('/api/galleries', async (req, res) => {
-  const galleries = await Gallery.find();
-  res.json(galleries.map(g => ({
-    id: g._id, name: g.name, description: g.description,
-    type: g.type, date: g.date, fileCount: g.files.length,
-  })));
-});
 
+//  ADMIN: create a delivery for a client
+//  body: { name, clientEmail, date, files: [{name, type, size, link}] }
 app.post('/api/galleries', auth, async (req, res) => {
   if (req.user.role !== 'admin')
     return res.status(403).json({ error: 'Admin only' });
-  const { name, description, type } = req.body;
+
+  const { name, clientEmail, date, files } = req.body;
+  if (!name || !clientEmail || !files || files.length === 0)
+    return res.status(400).json({ error: 'Name, client email and at least one file link are required' });
+
   const gallery = await Gallery.create({
-    name, description: description || '', type: type || 'event',
-    date: new Date().toISOString().split('T')[0],
-    owner: req.user.id, files: [], accessList: [],
+    name,
+    clientEmail: clientEmail.trim().toLowerCase(),
+    date: date || new Date().toISOString().split('T')[0],
+    type: 'delivery',
+    files: files.map(f => ({
+      name: f.name,
+      type: f.type || 'photos',
+      size: f.size || '',
+      link: f.link,
+    })),
   });
   res.json({ success: true, gallery });
 });
 
+//  ADMIN: see ALL deliveries
+app.get('/api/galleries/all', auth, async (req, res) => {
+  if (req.user.role !== 'admin')
+    return res.status(403).json({ error: 'Admin only' });
+  const galleries = await Gallery.find().sort({ createdAt: -1 });
+  res.json(galleries);
+});
+
+//  CLIENT: see only MY deliveries (matched by my email)
+app.get('/api/galleries/mine', auth, async (req, res) => {
+  const galleries = await Gallery.find({
+    clientEmail: req.user.email.trim().toLowerCase(),
+  }).sort({ createdAt: -1 });
+  res.json(galleries);
+});
+
+//  ADMIN: delete a delivery
 app.delete('/api/galleries/:id', auth, async (req, res) => {
   if (req.user.role !== 'admin')
     return res.status(403).json({ error: 'Admin only' });
   await Gallery.findByIdAndDelete(req.params.id);
-  res.json({ success: true, message: 'Gallery deleted' });
-});
-
-//  Upload files to a gallery
-app.post('/api/galleries/:id/upload', auth, upload.array('files', 50), async (req, res) => {
-  const gallery = await Gallery.findById(req.params.id);
-  if (!gallery) return res.status(404).json({ error: 'Gallery not found' });
-
-  const uploaded = req.files.map(f => ({
-    fileId: Date.now() + '-' + Math.random().toString(36).slice(2),
-    name:   f.originalname,
-    type:   f.mimetype.startsWith('video') ? 'video' : 'photos',
-    size:   (f.size / 1048576).toFixed(2) + ' MB',
-    path:   f.path,
-  }));
-  gallery.files.push(...uploaded);
-  await gallery.save();
-  res.json({ success: true, files: uploaded });
-});
-
-//  Download a file (only if client has access)
-app.get('/api/download/:galleryId/:fileId', auth, async (req, res) => {
-  const gallery = await Gallery.findById(req.params.galleryId);
-  if (!gallery) return res.status(404).json({ error: 'Gallery not found' });
-  if (!gallery.accessList.includes(req.user.id))
-    return res.status(403).json({ error: 'Access denied' });
-
-  const file = gallery.files.find(f => f.fileId === req.params.fileId);
-  if (!file || !fs.existsSync(file.path))
-    return res.status(404).json({ error: 'File not found' });
-  res.download(file.path, file.name);
+  res.json({ success: true, message: 'Delivery deleted' });
 });
 
 // ============================================================================
