@@ -81,13 +81,20 @@ const bookingSchema = new mongoose.Schema({
   createdAt:   { type: Date, default: Date.now },
 });
 
+// each file = a name + a Google Drive / Dropbox share link
+const fileSchema = new mongoose.Schema({
+  name: String,
+  type: String,
+  size: String,
+  link: String,
+}, { _id: false });
+
 const gallerySchema = new mongoose.Schema({
   name:        String,                 // e.g. "Raj & Priya Wedding"
   clientEmail: String,                 // which client this delivery is for
   date:        String,
   type:        String,
-  // each file = a name + a Google Drive / Dropbox share link
-  files:       [{ name: String, type: String, size: String, link: String }],
+  files:       [fileSchema],
   createdAt:   { type: Date, default: Date.now },
 });
 
