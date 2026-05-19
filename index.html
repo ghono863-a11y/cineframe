@@ -614,7 +614,6 @@
       // Real payment via Razorpay (falls back to demo if backend is offline)
       const payNow = async () => {
         const amount = deposit();
-        if (!f.card || !f.expiry || !f.cvv || !f.cardName) return;
         if (amount < 10) { alert('Minimum payment is ₹10. Please enter a higher amount.'); return; }
 
         const bookingData = {
@@ -859,43 +858,27 @@
                   </div>
                 </div>
 
-                {/* Card */}
+                {/* Payment methods info */}
                 <div className="glass" style={{borderRadius:20,padding:'22px 24px'}}>
-                  <h3 style={{fontWeight:800,marginBottom:18,fontSize:16,display:'flex',alignItems:'center',gap:8}}><Icons.CreditCard /> Card Details</h3>
-                  <div style={{display:'flex',flexDirection:'column',gap:14}}>
-                    <div>
-                      <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600,display:'block',marginBottom:6}}>Card Number</label>
-                      <input style={inp} placeholder="1234 5678 9012 3456" value={f.card} maxLength={19}
-                        onChange={e=>{const v=e.target.value.replace(/\D/g,'').slice(0,16);set('card',v.replace(/(.{4})/g,'$1 ').trim());}} onFocus={focusStyle} onBlur={blurStyle} />
-                    </div>
-                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
-                      <div>
-                        <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600,display:'block',marginBottom:6}}>Expiry</label>
-                        <input style={inp} placeholder="MM/YY" value={f.expiry} maxLength={5}
-                          onChange={e=>{let v=e.target.value.replace(/\D/g,'').slice(0,4);if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);set('expiry',v);}} onFocus={focusStyle} onBlur={blurStyle} />
-                      </div>
-                      <div>
-                        <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600,display:'block',marginBottom:6}}>CVV</label>
-                        <input style={inp} placeholder="123" type="password" value={f.cvv} maxLength={3}
-                          onChange={e=>set('cvv',e.target.value.replace(/\D/g,'').slice(0,3))} onFocus={focusStyle} onBlur={blurStyle} />
-                      </div>
-                    </div>
-                    <div>
-                      <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600,display:'block',marginBottom:6}}>Name on Card</label>
-                      <input style={inp} placeholder="As printed on card" value={f.cardName}
-                        onChange={e=>set('cardName',e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
-                    </div>
+                  <h3 style={{fontWeight:800,marginBottom:10,fontSize:16,display:'flex',alignItems:'center',gap:8}}><Icons.Lock /> Secure Payment</h3>
+                  <p style={{color:'rgba(255,255,255,0.6)',fontSize:14,lineHeight:1.7,marginBottom:14}}>
+                    Click the button below — a secure Razorpay window will open where you can pay with:
+                  </p>
+                  <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+                    {['📱 UPI','🟢 Google Pay','🟣 PhonePe','🔵 Paytm','💳 Cards','🏦 Net Banking','👛 Wallets'].map(m=>(
+                      <span key={m} style={{fontSize:13,background:'rgba(229,9,20,0.12)',color:'#ff6b70',padding:'6px 12px',borderRadius:50,fontWeight:600}}>{m}</span>
+                    ))}
                   </div>
-                  <div style={{marginTop:14,display:'flex',alignItems:'center',gap:8,fontSize:12,color:'rgba(255,255,255,0.35)'}}>
-                    <Icons.Lock /> 256-bit SSL encrypted payment
+                  <div style={{marginTop:16,display:'flex',alignItems:'center',gap:8,fontSize:12,color:'rgba(255,255,255,0.35)'}}>
+                    <Icons.Lock /> 256-bit SSL encrypted · Powered by Razorpay
                   </div>
                 </div>
 
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12,marginTop:4}}>
                   <button onClick={()=>setStep(2)} className="glass" style={{padding:'12px 24px',borderRadius:12,cursor:'pointer',color:'rgba(255,255,255,0.6)',border:'1px solid rgba(255,255,255,0.12)',fontWeight:600,fontSize:14}}>← Back</button>
                   <button onClick={payNow}
-                    disabled={!f.card||!f.expiry||!f.cvv||!f.cardName||deposit()<10}
-                    className="gradient-btn" style={{padding:'14px 28px',borderRadius:14,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15,opacity:(!f.card||!f.expiry||!f.cvv||!f.cardName||deposit()<10)?0.4:1}}>
+                    disabled={deposit()<10}
+                    className="gradient-btn" style={{padding:'14px 28px',borderRadius:14,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15,opacity:(deposit()<10)?0.4:1}}>
                     Pay ₹{deposit().toLocaleString()} & Confirm →
                   </button>
                 </div>
