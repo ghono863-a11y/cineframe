@@ -639,19 +639,8 @@
             order_id: order.orderId,
             prefill: { name:f.name, email:f.email, contact:f.phone },
             theme: { color: '#e50914' },
-            // Show UPI first / highlighted, then the rest of the methods
-            config: {
-              display: {
-                blocks: {
-                  upiblock: {
-                    name: 'Pay instantly with UPI',
-                    instruments: [{ method: 'upi' }],
-                  },
-                },
-                sequence: ['block.upiblock'],
-                preferences: { show_default_blocks: true },
-              },
-            },
+            // Razorpay default checkout — shows ALL activated methods
+            // (UPI / GPay / PhonePe / Paytm, Cards, Netbanking, Wallets)
             handler: async (resp) => {
               // 3. Payment done — verify + save booking on backend
               const result = await api('/api/bookings/confirm', 'POST', {
