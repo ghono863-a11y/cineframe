@@ -292,7 +292,24 @@
             {page==='client-portal' && user && <ClientPortal user={user} setPage={setPage} />}
             {page==='admin'         && user?.role==='admin' && <AdminDash setPage={setPage} user={user} />}
           </div>
+          <Footer />
         </div>
+      );
+    }
+
+    function Footer() {
+      return (
+        <footer style={{borderTop:'1px solid rgba(255,255,255,0.08)',padding:'28px 24px',textAlign:'center',marginTop:40}}>
+          <div style={{maxWidth:1100,margin:'0 auto',display:'flex',flexDirection:'column',gap:6,alignItems:'center'}}>
+            <div style={{fontWeight:900,fontSize:15,letterSpacing:'-0.5px'}}>CINEFRAME</div>
+            <div style={{fontSize:13,color:'rgba(255,255,255,0.4)'}}>
+              © {new Date().getFullYear()} CINEFRAME. All rights reserved.
+            </div>
+            <div style={{fontSize:13,color:'rgba(255,255,255,0.45)'}}>
+              Designed &amp; developed by <span style={{color:'#67e8f9',fontWeight:800,letterSpacing:1}}>MANXO</span>
+            </div>
+          </div>
+        </footer>
       );
     }
 
