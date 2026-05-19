@@ -236,8 +236,8 @@ app.post('/api/bookings/create-order', async (req, res) => {
     if (!razorpay) return res.status(503).json({ error: 'Payments not configured yet' });
 
     const { amount } = req.body;                 // amount in rupees
-    if (!amount || amount <= 0)
-      return res.status(400).json({ error: 'Invalid amount' });
+    if (!amount || amount < 10)
+      return res.status(400).json({ error: 'Minimum payment amount is ₹10' });
 
     const order = await razorpay.orders.create({
       amount:   Math.round(amount * 100),        // Razorpay wants paise (×100)

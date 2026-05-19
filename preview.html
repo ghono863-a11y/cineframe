@@ -597,7 +597,8 @@
       // Real payment via Razorpay (falls back to demo if backend is offline)
       const payNow = async () => {
         const amount = deposit();
-        if (!f.card || !f.expiry || !f.cvv || !f.cardName || amount <= 0) return;
+        if (!f.card || !f.expiry || !f.cvv || !f.cardName) return;
+        if (amount < 10) { alert('Minimum payment is ₹10. Please enter a higher amount.'); return; }
 
         const bookingData = {
           clientName:f.name, clientEmail:f.email, clientPhone:f.phone,
@@ -832,8 +833,13 @@
                     ))}
                   </div>
                   {f.payType==='custom'&&(
-                    <input style={{...inp,marginBottom:16}} type="number" placeholder={`Min ₹${Math.ceil(pkg.price*0.3).toLocaleString()}`}
-                      value={f.custom} onChange={e=>set('custom',e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
+                    <div style={{marginBottom:16}}>
+                      <input style={inp} type="number" min={10} placeholder="Enter amount (minimum ₹10)"
+                        value={f.custom} onChange={e=>set('custom',e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
+                      {f.custom!=='' && deposit()<10 && (
+                        <div style={{color:'#fca5a5',fontSize:12,marginTop:6}}>Minimum payment is ₹10</div>
+                      )}
+                    </div>
                   )}
                   <div className="glass-strong" style={{borderRadius:16,padding:'16px 20px',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
                     <div>
@@ -882,8 +888,8 @@
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12,marginTop:4}}>
                   <button onClick={()=>setStep(2)} className="glass" style={{padding:'12px 24px',borderRadius:12,cursor:'pointer',color:'rgba(255,255,255,0.6)',border:'1px solid rgba(255,255,255,0.12)',fontWeight:600,fontSize:14}}>← Back</button>
                   <button onClick={payNow}
-                    disabled={!f.card||!f.expiry||!f.cvv||!f.cardName||deposit()<=0}
-                    className="gradient-btn" style={{padding:'14px 28px',borderRadius:14,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15,opacity:(!f.card||!f.expiry||!f.cvv||!f.cardName||deposit()<=0)?0.4:1}}>
+                    disabled={!f.card||!f.expiry||!f.cvv||!f.cardName||deposit()<10}
+                    className="gradient-btn" style={{padding:'14px 28px',borderRadius:14,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15,opacity:(!f.card||!f.expiry||!f.cvv||!f.cardName||deposit()<10)?0.4:1}}>
                     Pay ₹{deposit().toLocaleString()} & Confirm →
                   </button>
                 </div>
