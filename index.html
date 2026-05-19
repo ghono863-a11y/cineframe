@@ -12,14 +12,18 @@
     * { box-sizing: border-box; }
     body { margin: 0; font-family: system-ui, sans-serif; background: #02010f; color: #fff; overflow-x: hidden; }
 
-    /* Galaxy background */
+    /* Filmbox cinematic background — dark with red glow */
     .bg-scene {
       position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
-      background: radial-gradient(ellipse at 20% 50%, #0d0630 0%, #000005 60%),
-                  radial-gradient(ellipse at 80% 20%, #060318 0%, transparent 50%),
-                  radial-gradient(ellipse at 60% 80%, #04021a 0%, transparent 50%);
-      background-color: #02010f;
+      background:
+        radial-gradient(ellipse 80% 60% at 75% 10%, rgba(229,9,20,0.28) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 50% at 15% 90%, rgba(139,0,20,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 50%, #1a0508 0%, #0a0204 70%);
+      background-color: #08020a;
     }
+
+    /* Galaxy layers hidden (filmbox theme uses bg-scene gradient only) */
+    .stars-sm, .stars-md, .stars-lg, .nebula { display: none !important; }
 
     /* Nebula glows — static, no animation */
     .nebula {
@@ -137,74 +141,62 @@
       transition: border-color 0.2s, background 0.2s;
     }
     .glass-input::placeholder { color: rgba(255,255,255,0.35); }
-    .glass-input:focus { border-color: rgba(6,182,212,0.7); background: rgba(255,255,255,0.12); }
+    .glass-input:focus { border-color: rgba(229,9,20,0.7); background: rgba(255,255,255,0.12); }
     .glass-input option { background: #1e1b4b; color: #fff; }
 
-    .glow-cyan  { box-shadow: 0 0 30px rgba(6,182,212,0.3); }
+    .glow-cyan  { box-shadow: 0 0 30px rgba(229,9,20,0.3); }
     .glow-purple{ box-shadow: 0 0 30px rgba(124,58,237,0.3); }
     .glow-pink  { box-shadow: 0 0 30px rgba(236,72,153,0.25); }
 
     .gradient-text {
-      background: linear-gradient(135deg, #67e8f9, #a78bfa, #f472b6);
+      background: linear-gradient(135deg, #ff5a5f, #e50914, #b00710);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    /* Cyberpunk primary button */
+    /* Filmbox primary button — red rounded pill */
     .gradient-btn {
-      background: #0ff0fc;
-      border: 2px solid #0ff0fc !important;
-      box-shadow: 0 0 12px #0ff0fc, 0 0 30px rgba(0,240,252,0.4), inset 0 0 12px rgba(0,240,252,0.1);
-      color: #000 !important;
-      font-weight: 900 !important;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      background: linear-gradient(135deg, #ff2d3a, #e50914);
+      border: none !important;
+      box-shadow: 0 6px 22px rgba(229,9,20,0.45);
+      color: #fff !important;
+      font-weight: 800 !important;
+      border-radius: 999px !important;
+      letter-spacing: 0.3px;
       position: relative;
       overflow: hidden;
       transition: all 0.2s;
-      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-    }
-    .gradient-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 100%);
-      pointer-events: none;
     }
     .gradient-btn:hover {
-      background: #ff2d78;
-      border-color: #ff2d78 !important;
-      box-shadow: 0 0 16px #ff2d78, 0 0 40px rgba(255,45,120,0.5), inset 0 0 12px rgba(255,45,120,0.15);
-      color: #fff !important;
-      transform: translateY(-2px) scale(1.03);
+      background: linear-gradient(135deg, #ff4651, #ff0f1d);
+      box-shadow: 0 8px 30px rgba(229,9,20,0.65);
+      transform: translateY(-2px);
     }
-    .gradient-btn:active { transform: translateY(0) scale(1); }
+    .gradient-btn:active { transform: translateY(0); }
 
-    /* Cyberpunk secondary / outline button */
+    /* Filmbox secondary / outline button — red ring pill */
     .cyber-btn-outline {
-      background: transparent;
-      border: 2px solid #ff2d78 !important;
-      box-shadow: 0 0 10px rgba(255,45,120,0.5), inset 0 0 10px rgba(255,45,120,0.05);
-      color: #ff2d78 !important;
-      font-weight: 800 !important;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      background: rgba(229,9,20,0.08);
+      border: 1.5px solid rgba(229,9,20,0.7) !important;
+      color: #ff6b70 !important;
+      font-weight: 700 !important;
+      border-radius: 999px !important;
+      letter-spacing: 0.3px;
       transition: all 0.2s;
-      clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
     }
     .cyber-btn-outline:hover {
-      background: #ff2d78;
+      background: #e50914;
       color: #fff !important;
-      box-shadow: 0 0 20px #ff2d78, 0 0 40px rgba(255,45,120,0.4);
+      box-shadow: 0 6px 22px rgba(229,9,20,0.5);
       transform: translateY(-2px);
     }
 
     input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.6); }
 
-    .step-done   { background: linear-gradient(135deg,#06b6d4,#7c3aed); color:#fff; border:none; }
-    .step-active { border: 2px solid #06b6d4; color: #06b6d4; box-shadow: 0 0 12px rgba(6,182,212,0.4); }
+    .step-done   { background: linear-gradient(135deg,#e50914,#b00710); color:#fff; border:none; }
+    .step-active { border: 2px solid #e50914; color: #e50914; box-shadow: 0 0 12px rgba(229,9,20,0.4); }
     .step-inactive{ border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.3); }
 
-    .pkg-selected { border-color: rgba(6,182,212,0.7) !important; background: rgba(6,182,212,0.08) !important; box-shadow: 0 0 20px rgba(6,182,212,0.2); }
+    .pkg-selected { border-color: rgba(229,9,20,0.7) !important; background: rgba(229,9,20,0.08) !important; box-shadow: 0 0 20px rgba(229,9,20,0.2); }
 
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -271,7 +263,7 @@
 
     const PACKAGES = [
       { id:'basic',    name:'Essential', price:25000, badge:'',           accent:'rgba(99,102,241,0.6)',  desc:'Perfect for intimate events',   includes:['4 hrs coverage','200 edited photos','Online gallery','1 photographer'] },
-      { id:'standard', name:'Premium',  price:45000, badge:'Most Popular', accent:'rgba(6,182,212,0.7)',  desc:'Our most loved package',        includes:['8 hrs coverage','500 edited photos','Cinematic highlight reel','2 photographers','Drone shots'] },
+      { id:'standard', name:'Premium',  price:45000, badge:'Most Popular', accent:'rgba(229,9,20,0.7)',  desc:'Our most loved package',        includes:['8 hrs coverage','500 edited photos','Cinematic highlight reel','2 photographers','Drone shots'] },
       { id:'elite',    name:'Elite',    price:75000, badge:'Best Value',   accent:'rgba(236,72,153,0.7)', desc:'Full cinematic experience',     includes:['Full day coverage','1000+ edited photos','Full wedding film (45 min)','3-person crew','Drone + Gimbal','Same-day teaser'] },
     ];
 
@@ -306,7 +298,7 @@
               © {new Date().getFullYear()} CINEFRAME. All rights reserved.
             </div>
             <div style={{fontSize:13,color:'rgba(255,255,255,0.45)'}}>
-              Designed &amp; developed by <span style={{color:'#67e8f9',fontWeight:800,letterSpacing:1}}>MANXO</span>
+              Designed &amp; developed by <span style={{color:'#ff5a5f',fontWeight:800,letterSpacing:1}}>MANXO</span>
             </div>
           </div>
         </footer>
@@ -327,7 +319,7 @@
                 </div>
                 <div>
                   <div style={{fontWeight:900,fontSize:17,letterSpacing:'-0.5px'}}>CINEFRAME</div>
-                  <div style={{fontSize:10,color:'rgba(103,232,249,0.9)',fontWeight:600,letterSpacing:2}}>FILMS & MOMENTS</div>
+                  <div style={{fontSize:10,color:'rgba(229,9,20,0.9)',fontWeight:600,letterSpacing:2}}>FILMS & MOMENTS</div>
                 </div>
               </div>
 
@@ -363,7 +355,7 @@
               <div className="glass" style={{padding:'12px 0 16px',borderRadius:12,marginBottom:12,display:'flex',flexDirection:'column',gap:4}}>
                 {['Portfolio','Book Now','Login'].map(l => {
                   const p = l==='Book Now'?'booking':l.toLowerCase().replace(' ','-');
-                  return <button key={l} onClick={()=>{setPage(p);setMenuOpen(false);}} style={{textAlign:'left',padding:'10px 16px',background:'none',border:'none',color:page===p?'#67e8f9':'rgba(255,255,255,0.8)',cursor:'pointer',fontWeight:600,fontSize:14}}>{l}</button>;
+                  return <button key={l} onClick={()=>{setPage(p);setMenuOpen(false);}} style={{textAlign:'left',padding:'10px 16px',background:'none',border:'none',color:page===p?'#ff5a5f':'rgba(255,255,255,0.8)',cursor:'pointer',fontWeight:600,fontSize:14}}>{l}</button>;
                 })}
               </div>
             )}
@@ -375,7 +367,7 @@
     function NavBtn({ label, p, page, setPage }) {
       const active = page === p;
       return (
-        <button onClick={()=>setPage(p)} style={{background:'none',border:'none',cursor:'pointer',fontWeight:700,fontSize:12,letterSpacing:2,textTransform:'uppercase',color:active?'#67e8f9':'rgba(255,255,255,0.65)',transition:'color 0.2s',borderBottom:active?'1px solid #67e8f9':'none',paddingBottom:2}}>
+        <button onClick={()=>setPage(p)} style={{background:'none',border:'none',cursor:'pointer',fontWeight:700,fontSize:12,letterSpacing:2,textTransform:'uppercase',color:active?'#ff5a5f':'rgba(255,255,255,0.65)',transition:'color 0.2s',borderBottom:active?'1px solid #ff5a5f':'none',paddingBottom:2}}>
           {label}
         </button>
       );
@@ -385,31 +377,56 @@
     function Home({ setPage, user }) {
       return (
         <div>
-          {/* Hero */}
-          <section style={{minHeight:'92vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'0 24px',textAlign:'center'}}>
-            <div style={{maxWidth:800,zIndex:1}}>
-              <div className="glass" style={{display:'inline-block',padding:'6px 18px',borderRadius:50,fontSize:12,fontWeight:700,letterSpacing:2,marginBottom:24,color:'#a78bfa'}}>
-                ✦ AWARD-WINNING CINEMATOGRAPHY ✦
-              </div>
-              <h1 style={{fontSize:'clamp(2.8rem,7vw,5.5rem)',fontWeight:900,lineHeight:1.05,marginBottom:24,letterSpacing:'-2px'}}>
-                <span style={{display:'block',marginBottom:8}}>Cinematic</span>
-                <span className="gradient-text">Visual Storytelling</span>
-              </h1>
-              <p style={{fontSize:'clamp(1rem,2vw,1.2rem)',color:'rgba(255,255,255,0.65)',marginBottom:40,maxWidth:560,margin:'0 auto 40px',lineHeight:1.7}}>
-                Weddings, Events & Cinematic Films. We capture moments that move hearts and tell stories that last forever.
-              </p>
-              <div style={{display:'flex',gap:16,justifyContent:'center',flexWrap:'wrap'}}>
-                <button onClick={()=>setPage('portfolio')} className="gradient-btn" style={{padding:'14px 32px',borderRadius:14,fontWeight:800,fontSize:16,border:'none',cursor:'pointer',color:'#fff',display:'flex',alignItems:'center',gap:8}}>
-                  View Work <Icons.Chevron />
-                </button>
-                <button onClick={()=>setPage('booking')} className="cyber-btn-outline" style={{padding:'14px 32px',borderRadius:0,fontSize:16,cursor:'pointer'}}>
-                  📅 Book a Session
-                </button>
-                {!user && (
-                  <button onClick={()=>setPage('login')} className="cyber-btn-outline" style={{padding:'14px 32px',borderRadius:0,fontSize:16,cursor:'pointer'}}>
-                    Client Login
+          {/* Hero — filmbox featured layout */}
+          <section style={{minHeight:'90vh',display:'flex',alignItems:'center',padding:'40px 24px',maxWidth:1200,margin:'0 auto'}}>
+            <div style={{display:'flex',alignItems:'center',gap:40,flexWrap:'wrap',width:'100%'}}>
+              {/* Left: text */}
+              <div style={{flex:'1 1 420px',minWidth:300,zIndex:1}}>
+                <div style={{fontSize:13,fontWeight:800,letterSpacing:3,color:'#ff5a5f',marginBottom:14}}>
+                  THE ART OF CINEMA
+                </div>
+                <h1 style={{fontSize:'clamp(2.8rem,6vw,5rem)',fontWeight:900,lineHeight:1.02,marginBottom:18,letterSpacing:'-2px'}}>
+                  Cinematic<br/><span className="gradient-text">Visual Storytelling</span>
+                </h1>
+                <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:18,flexWrap:'wrap'}}>
+                  <span style={{display:'flex',alignItems:'center',gap:6,fontWeight:800,fontSize:14}}>
+                    <span style={{color:'#ffb43a'}}>★★★★★</span> 5.0
+                  </span>
+                  <span style={{color:'rgba(255,255,255,0.4)'}}>•</span>
+                  <span style={{color:'rgba(255,255,255,0.6)',fontSize:14}}>Weddings · Events · Films</span>
+                </div>
+                <p style={{fontSize:'clamp(1rem,1.6vw,1.15rem)',color:'rgba(255,255,255,0.6)',marginBottom:32,maxWidth:520,lineHeight:1.7}}>
+                  We capture moments that move hearts and tell stories that last forever. Award-winning cinematography for your biggest days.
+                </p>
+                <div style={{display:'flex',gap:14,flexWrap:'wrap'}}>
+                  <button onClick={()=>setPage('booking')} className="gradient-btn" style={{padding:'15px 34px',fontSize:16,cursor:'pointer',display:'flex',alignItems:'center',gap:8}}>
+                    ▶ Book Now
                   </button>
-                )}
+                  <button onClick={()=>setPage('portfolio')} className="cyber-btn-outline" style={{padding:'15px 30px',fontSize:16,cursor:'pointer'}}>
+                    View Work
+                  </button>
+                  {!user && (
+                    <button onClick={()=>setPage('login')} className="cyber-btn-outline" style={{padding:'15px 30px',fontSize:16,cursor:'pointer'}}>
+                      Client Login
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Right: featured visual */}
+              <div style={{flex:'1 1 380px',minWidth:280,position:'relative'}}>
+                <div style={{position:'relative',borderRadius:24,overflow:'hidden',boxShadow:'0 30px 80px rgba(229,9,20,0.35)'}}>
+                  <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=600&fit=crop"
+                    alt="Featured" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+                  <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(10,2,4,0.7), transparent 50%)'}}></div>
+                  <div onClick={()=>setPage('portfolio')} style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:72,height:72,borderRadius:'50%',background:'#e50914',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxShadow:'0 0 0 10px rgba(229,9,20,0.25)'}}>
+                    <span style={{color:'#fff',fontSize:26,marginLeft:4}}>▶</span>
+                  </div>
+                  <div style={{position:'absolute',bottom:20,left:24,right:24}}>
+                    <div style={{fontWeight:900,fontSize:22}}>Featured Reel 2026</div>
+                    <div style={{color:'rgba(255,255,255,0.7)',fontSize:13}}>Wedding Cinematography Showcase</div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -418,8 +435,8 @@
           <section style={{padding:'60px 24px',maxWidth:1100,margin:'0 auto'}}>
             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:20}}>
               {[
-                {icon:'🎬',title:'Cinematography',desc:'Cinematic wedding films & event videos with professional color grading',color:'#7c3aed'},
-                {icon:'📸',title:'Photography',desc:'Stunning wedding & event photography capturing every precious moment',color:'#06b6d4'},
+                {icon:'🎬',title:'Cinematography',desc:'Cinematic wedding films & event videos with professional color grading',color:'#b00710'},
+                {icon:'📸',title:'Photography',desc:'Stunning wedding & event photography capturing every precious moment',color:'#e50914'},
                 {icon:'🔐',title:'Secure Portal',desc:'Access your photos & videos securely. Download in high quality anytime',color:'#ec4899'},
               ].map(f => (
                 <div key={f.title} className="glass" style={{padding:'32px',borderRadius:20,transition:'transform 0.2s,box-shadow 0.2s'}}
@@ -448,11 +465,11 @@
                     <h3 style={{fontSize:22,fontWeight:900,marginBottom:4}}>{pkg.name}</h3>
                     <p style={{color:'rgba(255,255,255,0.5)',fontSize:13,marginBottom:16}}>{pkg.desc}</p>
                     <div style={{fontSize:36,fontWeight:900,marginBottom:2}}>₹{pkg.price.toLocaleString()}</div>
-                    <div style={{fontSize:13,color:'rgba(103,232,249,0.9)',marginBottom:20}}>Deposit from ₹{Math.ceil(pkg.price*0.3).toLocaleString()}</div>
+                    <div style={{fontSize:13,color:'rgba(229,9,20,0.9)',marginBottom:20}}>Deposit from ₹{Math.ceil(pkg.price*0.3).toLocaleString()}</div>
                     <ul style={{listStyle:'none',padding:0,margin:'0 0 24px',display:'flex',flexDirection:'column',gap:8}}>
                       {pkg.includes.map(item => (
                         <li key={item} style={{fontSize:13,color:'rgba(255,255,255,0.75)',display:'flex',alignItems:'center',gap:8}}>
-                          <span style={{color:'#67e8f9',flexShrink:0}}><Icons.Check /></span>{item}
+                          <span style={{color:'#ff5a5f',flexShrink:0}}><Icons.Check /></span>{item}
                         </li>
                       ))}
                     </ul>
@@ -532,7 +549,7 @@
                       onMouseEnter={e=>e.target.style.transform='scale(1.07)'}
                       onMouseLeave={e=>e.target.style.transform='scale(1)'} />
                     <div className="overlay" style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.55)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',opacity:0,transition:'opacity 0.3s',backdropFilter:'blur(2px)'}}>
-                      <span style={{color:'rgba(103,232,249,0.95)'}}><Icons.PlayLg /></span>
+                      <span style={{color:'rgba(229,9,20,0.95)'}}><Icons.PlayLg /></span>
                     </div>
                     <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'16px',background:'linear-gradient(transparent,rgba(0,0,0,0.8))'}}>
                       <div style={{fontWeight:700,fontSize:14}}>{v.title}</div>
@@ -552,7 +569,7 @@
                       onMouseEnter={e=>e.target.style.transform='scale(1.07)'}
                       onMouseLeave={e=>e.target.style.transform='scale(1)'} />
                     <div className="overlay" style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',opacity:0,transition:'opacity 0.3s',backdropFilter:'blur(2px)'}}>
-                      <span style={{color:'rgba(103,232,249,0.95)'}}><Icons.Eye /></span>
+                      <span style={{color:'rgba(229,9,20,0.95)'}}><Icons.Eye /></span>
                     </div>
                     <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'12px 14px',background:'linear-gradient(transparent,rgba(0,0,0,0.8)',fontSize:13,fontWeight:600}}>{p.title}</div>
                   </div>
@@ -621,7 +638,7 @@
             description: pkg.name + ' Package — Deposit',
             order_id: order.orderId,
             prefill: { name:f.name, email:f.email, contact:f.phone },
-            theme: { color: '#0ff0fc' },
+            theme: { color: '#e50914' },
             // Show UPI first / highlighted, then the rest of the methods
             config: {
               display: {
@@ -660,7 +677,7 @@
       };
 
       const inp = {width:'100%',padding:'12px 16px',borderRadius:12,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',backdropFilter:'blur(10px)',boxSizing:'border-box'};
-      const focusStyle = e => { e.target.style.borderColor='rgba(103,232,249,0.7)'; e.target.style.background='rgba(255,255,255,0.13)'; };
+      const focusStyle = e => { e.target.style.borderColor='rgba(229,9,20,0.7)'; e.target.style.background='rgba(255,255,255,0.13)'; };
       const blurStyle  = e => { e.target.style.borderColor='rgba(255,255,255,0.15)'; e.target.style.background='rgba(255,255,255,0.08)'; };
 
       const StepDot = ({n,label}) => {
@@ -670,7 +687,7 @@
             <div className={done2?'step-done':active?'step-active':'step-inactive'} style={{width:34,height:34,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:800,flexShrink:0}}>
               {done2?<Icons.Check />:n}
             </div>
-            <span style={{fontSize:13,fontWeight:600,color:active?'#fff':done2?'#67e8f9':'rgba(255,255,255,0.3)'}}>{label}</span>
+            <span style={{fontSize:13,fontWeight:600,color:active?'#fff':done2?'#ff5a5f':'rgba(255,255,255,0.3)'}}>{label}</span>
           </div>
         );
       };
@@ -683,7 +700,7 @@
             </div>
             <h1 style={{fontSize:36,fontWeight:900,marginBottom:12}}>Booking Confirmed!</h1>
             <p style={{color:'rgba(255,255,255,0.5)',marginBottom:32,lineHeight:1.7}}>
-              Reference: <span style={{color:'#67e8f9',fontWeight:700}}>{ref}</span><br/>
+              Reference: <span style={{color:'#ff5a5f',fontWeight:700}}>{ref}</span><br/>
               Confirmation sent to <span style={{color:'#fff'}}>{f.email}</span>
             </p>
             <div className="glass" style={{borderRadius:20,padding:'24px',marginBottom:28,textAlign:'left'}}>
@@ -707,7 +724,7 @@
             </div>
             <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
               <button onClick={()=>setPage('home')} className="gradient-btn" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:15}}>Back to Home</button>
-              {!user && <button onClick={()=>setPage('register')} className="glass" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,cursor:'pointer',color:'#67e8f9',border:'1px solid rgba(103,232,249,0.3)',fontSize:15}}>Create Account</button>}
+              {!user && <button onClick={()=>setPage('register')} className="glass" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,cursor:'pointer',color:'#ff5a5f',border:'1px solid rgba(229,9,20,0.3)',fontSize:15}}>Create Account</button>}
             </div>
           </div>
         </div>
@@ -773,10 +790,10 @@
               <div style={{display:'flex',flexDirection:'column',gap:14}}>
                 {PACKAGES.map(p=>(
                   <div key={p.id} onClick={()=>set('pkgId',p.id)} className={f.pkgId===p.id?'pkg-selected glass':'glass'}
-                    style={{borderRadius:20,padding:'22px 24px',cursor:'pointer',border:`1px solid ${f.pkgId===p.id?'rgba(103,232,249,0.6)':'rgba(255,255,255,0.1)'}`,transition:'all 0.2s',position:'relative'}}>
+                    style={{borderRadius:20,padding:'22px 24px',cursor:'pointer',border:`1px solid ${f.pkgId===p.id?'rgba(229,9,20,0.6)':'rgba(255,255,255,0.1)'}`,transition:'all 0.2s',position:'relative'}}>
                     {p.badge && <span style={{position:'absolute',top:14,right:14,background:p.accent,padding:'3px 10px',borderRadius:50,fontSize:11,fontWeight:800}}>{p.badge}</span>}
                     <div style={{display:'flex',alignItems:'flex-start',gap:16}}>
-                      <div style={{width:24,height:24,borderRadius:'50%',border:`2px solid ${f.pkgId===p.id?'#06b6d4':'rgba(255,255,255,0.2)'}`,background:f.pkgId===p.id?'#06b6d4':'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:4,transition:'all 0.2s'}}>
+                      <div style={{width:24,height:24,borderRadius:'50%',border:`2px solid ${f.pkgId===p.id?'#e50914':'rgba(255,255,255,0.2)'}`,background:f.pkgId===p.id?'#e50914':'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:4,transition:'all 0.2s'}}>
                         {f.pkgId===p.id&&<span style={{color:'#000',transform:'scale(0.75)',display:'flex'}}><Icons.Check /></span>}
                       </div>
                       <div style={{flex:1}}>
@@ -790,7 +807,7 @@
                           </div>
                           <div style={{textAlign:'right',flexShrink:0}}>
                             <div style={{fontSize:26,fontWeight:900}}>₹{p.price.toLocaleString()}</div>
-                            <div style={{fontSize:12,color:'rgba(103,232,249,0.9)'}}>deposit from ₹{Math.ceil(p.price*0.3).toLocaleString()}</div>
+                            <div style={{fontSize:12,color:'rgba(229,9,20,0.9)'}}>deposit from ₹{Math.ceil(p.price*0.3).toLocaleString()}</div>
                           </div>
                         </div>
                       </div>
@@ -826,7 +843,7 @@
                   <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:16}}>
                     {[['30','30%',`₹${Math.ceil(pkg.price*0.3).toLocaleString()}`],['50','50%',`₹${Math.ceil(pkg.price*0.5).toLocaleString()}`],['100','Full',`₹${pkg.price.toLocaleString()}`],['custom','Custom','Enter amount']].map(([val,label,sub])=>(
                       <button key={val} onClick={()=>set('payType',val)}
-                        style={{padding:'12px 8px',borderRadius:14,border:`2px solid ${f.payType===val?'rgba(103,232,249,0.7)':'rgba(255,255,255,0.1)'}`,background:f.payType===val?'rgba(103,232,249,0.1)':'rgba(255,255,255,0.05)',cursor:'pointer',textAlign:'center',transition:'all 0.2s'}}>
+                        style={{padding:'12px 8px',borderRadius:14,border:`2px solid ${f.payType===val?'rgba(229,9,20,0.7)':'rgba(255,255,255,0.1)'}`,background:f.payType===val?'rgba(229,9,20,0.1)':'rgba(255,255,255,0.05)',cursor:'pointer',textAlign:'center',transition:'all 0.2s'}}>
                         <div style={{fontWeight:900,fontSize:15,color:'#fff'}}>{label}</div>
                         <div style={{fontSize:11,color:'rgba(255,255,255,0.45)',marginTop:2}}>{sub}</div>
                       </button>
@@ -844,7 +861,7 @@
                   <div className="glass-strong" style={{borderRadius:16,padding:'16px 20px',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
                     <div>
                       <div style={{fontSize:12,color:'rgba(255,255,255,0.5)',marginBottom:4}}>Paying now</div>
-                      <div style={{fontSize:28,fontWeight:900,color:'#67e8f9'}}>₹{deposit().toLocaleString()}</div>
+                      <div style={{fontSize:28,fontWeight:900,color:'#ff5a5f'}}>₹{deposit().toLocaleString()}</div>
                     </div>
                     <div style={{textAlign:'right'}}>
                       <div style={{fontSize:12,color:'rgba(255,255,255,0.5)',marginBottom:4}}>Balance due on the day</div>
@@ -906,7 +923,7 @@
       const [pass, setPass] = useState('');
       const [err, setErr] = useState('');
       const inp = {width:'100%',padding:'13px 16px',borderRadius:14,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',boxSizing:'border-box'};
-      const fo = e=>{e.target.style.borderColor='rgba(103,232,249,0.7)';};
+      const fo = e=>{e.target.style.borderColor='rgba(229,9,20,0.7)';};
       const bl = e=>{e.target.style.borderColor='rgba(255,255,255,0.15)';};
 
       const doLogin = async () => {
@@ -944,7 +961,7 @@
               </button>
             </div>
             <p style={{textAlign:'center',color:'rgba(255,255,255,0.4)',marginTop:20,fontSize:14}}>
-              No account? <button onClick={()=>setPage('register')} style={{background:'none',border:'none',color:'#67e8f9',cursor:'pointer',fontWeight:700,fontSize:14}}>Register here</button>
+              No account? <button onClick={()=>setPage('register')} style={{background:'none',border:'none',color:'#ff5a5f',cursor:'pointer',fontWeight:700,fontSize:14}}>Register here</button>
             </p>
           </div>
         </div>
@@ -957,7 +974,7 @@
       const [email, setEmail] = useState('');
       const [pass, setPass] = useState('');
       const inp = {width:'100%',padding:'13px 16px',borderRadius:14,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',boxSizing:'border-box'};
-      const fo=e=>e.target.style.borderColor='rgba(103,232,249,0.7)';
+      const fo=e=>e.target.style.borderColor='rgba(229,9,20,0.7)';
       const bl=e=>e.target.style.borderColor='rgba(255,255,255,0.15)';
 
       const doRegister = async () => {
@@ -991,7 +1008,7 @@
               </button>
             </div>
             <p style={{textAlign:'center',color:'rgba(255,255,255,0.4)',marginTop:20,fontSize:14}}>
-              Already have access? <button onClick={()=>setPage('login')} style={{background:'none',border:'none',color:'#67e8f9',cursor:'pointer',fontWeight:700,fontSize:14}}>Login</button>
+              Already have access? <button onClick={()=>setPage('login')} style={{background:'none',border:'none',color:'#ff5a5f',cursor:'pointer',fontWeight:700,fontSize:14}}>Login</button>
             </p>
           </div>
         </div>
@@ -1071,7 +1088,7 @@
                 {g.files.map((file,i)=>(
                   <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12,padding:'12px 0',borderTop:i>0?'1px solid rgba(255,255,255,0.07)':'none'}}>
                     <div style={{display:'flex',alignItems:'center',gap:10}}>
-                      <span style={{fontSize:12,background:'rgba(103,232,249,0.1)',color:'#67e8f9',padding:'4px 10px',borderRadius:50}}>{file.type==='video'?'🎬 Video':'📸 Photos'}</span>
+                      <span style={{fontSize:12,background:'rgba(229,9,20,0.1)',color:'#ff5a5f',padding:'4px 10px',borderRadius:50}}>{file.type==='video'?'🎬 Video':'📸 Photos'}</span>
                       <div>
                         <div style={{fontWeight:700,fontSize:15}}>{file.name}</div>
                         {file.size&&<div style={{fontSize:12,color:'rgba(255,255,255,0.35)'}}>{file.size}</div>}
@@ -1146,7 +1163,7 @@
         try { await api('/api/galleries/'+id, 'DELETE', null, user.token); setDeliveries(d=>d.filter(x=>x._id!==id)); } catch(e){}
       };
 
-      const statusColor = s => s==='Fully Paid'?{bg:'rgba(16,185,129,0.15)',c:'#34d399'}:s==='Confirmed'?{bg:'rgba(103,232,249,0.15)',c:'#67e8f9'}:{bg:'rgba(251,191,36,0.15)',c:'#fbbf24'};
+      const statusColor = s => s==='Fully Paid'?{bg:'rgba(16,185,129,0.15)',c:'#34d399'}:s==='Confirmed'?{bg:'rgba(229,9,20,0.15)',c:'#ff5a5f'}:{bg:'rgba(251,191,36,0.15)',c:'#fbbf24'};
       const inp = {flex:1,minWidth:120,padding:'11px 14px',borderRadius:10,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',boxSizing:'border-box'};
 
       return (
@@ -1158,7 +1175,7 @@
               {[['📅','Bookings',stats.count],['💰','Revenue','₹'+stats.revenue.toLocaleString()],['⏳','Pending','₹'+stats.pending.toLocaleString()],['🗂️','Deliveries',deliveries.length]].map(([icon,label,val])=>(
                 <div key={label} className="glass" style={{borderRadius:18,padding:'20px',textAlign:'center'}}>
                   <div style={{fontSize:30,marginBottom:6}}>{icon}</div>
-                  <div style={{fontSize:24,fontWeight:900,color:'#67e8f9',marginBottom:2}}>{val}</div>
+                  <div style={{fontSize:24,fontWeight:900,color:'#ff5a5f',marginBottom:2}}>{val}</div>
                   <div style={{fontSize:13,color:'rgba(255,255,255,0.45)'}}>{label}</div>
                 </div>
               ))}
@@ -1224,7 +1241,7 @@
                       {dFiles.length>1 && <button onClick={()=>removeFileRow(i)} style={{padding:'10px 12px',borderRadius:10,background:'rgba(239,68,68,0.15)',border:'1px solid rgba(239,68,68,0.3)',color:'#fca5a5',cursor:'pointer',fontSize:13}}>✕</button>}
                     </div>
                   ))}
-                  <button onClick={addFileRow} className="glass" style={{padding:'8px 16px',borderRadius:10,color:'#67e8f9',border:'1px solid rgba(103,232,249,0.3)',cursor:'pointer',fontSize:13,fontWeight:700,marginBottom:14}}>+ Add another file</button>
+                  <button onClick={addFileRow} className="glass" style={{padding:'8px 16px',borderRadius:10,color:'#ff5a5f',border:'1px solid rgba(229,9,20,0.3)',cursor:'pointer',fontSize:13,fontWeight:700,marginBottom:14}}>+ Add another file</button>
 
                   {msg && <div style={{fontSize:13,marginBottom:12,color:msg.startsWith('✅')?'#34d399':'#fca5a5'}}>{msg}</div>}
 
