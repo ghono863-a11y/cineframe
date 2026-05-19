@@ -621,6 +621,19 @@
             order_id: order.orderId,
             prefill: { name:f.name, email:f.email, contact:f.phone },
             theme: { color: '#0ff0fc' },
+            // Show UPI first / highlighted, then the rest of the methods
+            config: {
+              display: {
+                blocks: {
+                  upiblock: {
+                    name: 'Pay instantly with UPI',
+                    instruments: [{ method: 'upi' }],
+                  },
+                },
+                sequence: ['block.upiblock'],
+                preferences: { show_default_blocks: true },
+              },
+            },
             handler: async (resp) => {
               // 3. Payment done — verify + save booking on backend
               const result = await api('/api/bookings/confirm', 'POST', {
