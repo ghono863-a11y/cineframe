@@ -121,6 +121,39 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
 }
 
 // ============================================================================
+//  EMAIL NOTIFICATIONS (via free Resend — https://resend.com)
+// ============================================================================
+//  Set RESEND_API_KEY and OWNER_EMAIL in .env / Render.
+//  Sends the owner an email on each booking. Fire-and-forget: failures are
+//  logged but never crash a booking.
+async function notifyOwner(message) {
+  const apikey = process.env.RESEND_API_KEY;
+  const to     = process.env.OWNER_EMAIL;
+  if (!apikey || !to) {
+    console.warn('⚠️  Email alert skipped — RESEND_API_KEY / OWNER_EMAIL not set');
+    return;
+  }
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + apikey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'CINEFRAME <onboarding@resend.dev>',
+        to: [to],
+        subject: '🎉 New CINEFRAME Booking',
+        text: message,
+      }),
+    });
+    console.log('📧 Email alert sent (status ' + r.status + ')');
+  } catch (e) {
+    console.error('Email alert failed:', e.message);
+  }
+}
+
+// ============================================================================
 //  3. FILE UPLOAD SETUP
 // ============================================================================
 const storage = multer.diskStorage({
@@ -245,6 +278,18 @@ app.post('/api/bookings/confirm', async (req, res) => {
       balanceDue: booking.totalAmount - booking.paidAmount,
       status:     booking.paidAmount >= booking.totalAmount ? 'Fully Paid' : 'Confirmed',
     });
+
+    // Fire a WhatsApp alert to the owner (non-blocking, never crashes the request)
+    notifyOwner(
+      `🎉 NEW BOOKING — CINEFRAME\n\n` +
+      `Client: ${booking.clientName}\n` +
+      `Phone: ${booking.clientPhone}\n` +
+      `Email: ${booking.clientEmail}\n` +
+      `Package: ${booking.packageName}\n` +
+      `Event: ${booking.eventType} on ${booking.eventDate}\n` +
+      `Paid: ₹${booking.paidAmount} (of ₹${booking.totalAmount})\n` +
+      `Ref: ${bookingRef}`
+    );
 
     res.json({ success: true, bookingRef, booking: saved });
   } catch (e) {

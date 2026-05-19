@@ -18,3 +18,9 @@ MONGODB_URI=
 # Dashboard -> Settings -> API Keys -> Generate Test Key
 RAZORPAY_KEY_ID=
 RAZORPAY_KEY_SECRET=
+
+# --- Email booking alerts (free, via Resend: https://resend.com) ---
+# Sign up at resend.com -> API Keys -> Create -> paste the key below.
+# OWNER_EMAIL = the email you want booking alerts sent to (your Resend signup email).
+RESEND_API_KEY=
+OWNER_EMAIL=
