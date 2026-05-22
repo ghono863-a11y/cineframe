@@ -3,1262 +3,729 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CINEFRAME - Photography & Cinematography</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Studio Meridian — Independent Graphic Design</title>
+  <meta name="description" content="Studio Meridian is the independent graphic design practice of Mira Cole, building identities, editorial and packaging for considered brands." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
+    :root {
+      --bg: #F2EFE8;
+      --bg-warm: #ECE7DC;
+      --ink: #0E0E0E;
+      --ink-soft: #4A4843;
+      --ink-mute: #8A867F;
+      --line-soft: rgba(14,14,14,0.12);
+      --accent: #FF4A1C;
+      --cream: #FAF7F0;
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, sans-serif; background: #02010f; color: #fff; overflow-x: hidden; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+    .serif { font-family: 'Fraunces', Georgia, serif; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
 
-    /* Filmbox cinematic background — dark with red glow */
-    .bg-scene {
-      position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
-      background:
-        radial-gradient(ellipse 80% 60% at 75% 10%, rgba(229,9,20,0.28) 0%, transparent 60%),
-        radial-gradient(ellipse 70% 50% at 15% 90%, rgba(139,0,20,0.18) 0%, transparent 60%),
-        radial-gradient(ellipse at 50% 50%, #1a0508 0%, #0a0204 70%);
-      background-color: #08020a;
+    .grain {
+      position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.05;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+      mix-blend-mode: multiply;
     }
 
-    /* Galaxy layers hidden (filmbox theme uses bg-scene gradient only) */
-    .stars-sm, .stars-md, .stars-lg, .nebula { display: none !important; }
+    /* Nav */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      padding: 22px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(242,239,232,0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .nav-mark {
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      font-weight: 700; letter-spacing: -0.01em;
+    }
+    .nav-mark .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--accent); display: inline-block;
+    }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links button {
+      background: none; border: none; cursor: pointer; padding: 4px 0;
+      font-size: 13px; font-weight: 500; letter-spacing: 0.02em;
+      color: var(--ink); position: relative;
+    }
+    .nav-links button:not(.nav-cta)::after {
+      content:''; position: absolute; left: 0; right: 0; bottom: -4px;
+      height: 1px; background: var(--ink); transform: scaleX(0);
+      transform-origin: left; transition: transform 0.3s ease;
+    }
+    .nav-links button:not(.nav-cta):hover::after { transform: scaleX(1); }
+    .nav-cta {
+      padding: 8px 18px; border: 1px solid var(--ink); border-radius: 999px;
+      background: var(--ink); color: var(--bg);
+      cursor: pointer; font-size: 13px; font-weight: 500;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .nav-cta:hover { background: var(--accent); color: var(--cream); border-color: var(--accent); }
+    .menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 6px; color: var(--ink); }
 
-    /* Nebula glows — static, no animation */
-    .nebula {
-      position: absolute; border-radius: 50%; pointer-events: none;
+    /* Hero */
+    .hero {
+      padding: 180px 32px 80px;
+      max-width: 1400px; margin: 0 auto;
     }
-    .nebula-1 { width: 80vw; height: 60vh; top: -10%; left: -20%; background: radial-gradient(ellipse, rgba(88,28,220,0.18) 0%, transparent 70%); filter: blur(60px); }
-    .nebula-2 { width: 60vw; height: 50vh; top: 30%; right: -15%; background: radial-gradient(ellipse, rgba(6,100,180,0.15) 0%, transparent 70%); filter: blur(50px); }
-    .nebula-3 { width: 50vw; height: 40vh; bottom: 0; left: 20%; background: radial-gradient(ellipse, rgba(160,20,120,0.12) 0%, transparent 70%); filter: blur(60px); }
-
-    /* Star layers */
-    .stars-sm, .stars-md, .stars-lg { position: absolute; inset: 0; }
-
-    .stars-sm {
-      background-image:
-        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.8) 0%, transparent 100%),
-        radial-gradient(1px 1px at 25% 8%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 40% 22%, rgba(255,255,255,0.9) 0%, transparent 100%),
-        radial-gradient(1px 1px at 55% 5%, rgba(255,255,255,0.7) 0%, transparent 100%),
-        radial-gradient(1px 1px at 70% 18%, rgba(255,255,255,0.8) 0%, transparent 100%),
-        radial-gradient(1px 1px at 85% 12%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 15% 35%, rgba(255,255,255,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 30% 45%, rgba(255,255,255,0.8) 0%, transparent 100%),
-        radial-gradient(1px 1px at 48% 38%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 62% 42%, rgba(255,255,255,0.9) 0%, transparent 100%),
-        radial-gradient(1px 1px at 78% 30%, rgba(255,255,255,0.7) 0%, transparent 100%),
-        radial-gradient(1px 1px at 92% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 5%  55%, rgba(255,255,255,0.8) 0%, transparent 100%),
-        radial-gradient(1px 1px at 20% 62%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 35% 58%, rgba(255,255,255,0.9) 0%, transparent 100%),
-        radial-gradient(1px 1px at 52% 65%, rgba(255,255,255,0.7) 0%, transparent 100%),
-        radial-gradient(1px 1px at 67% 55%, rgba(255,255,255,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 82% 70%, rgba(255,255,255,0.8) 0%, transparent 100%),
-        radial-gradient(1px 1px at 95% 60%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 8%  78%, rgba(255,255,255,0.9) 0%, transparent 100%),
-        radial-gradient(1px 1px at 23% 82%, rgba(255,255,255,0.7) 0%, transparent 100%),
-        radial-gradient(1px 1px at 45% 88%, rgba(255,255,255,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 60% 75%, rgba(255,255,255,0.8) 0%, transparent 100%),
-        radial-gradient(1px 1px at 75% 90%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 90% 82%, rgba(255,255,255,0.9) 0%, transparent 100%),
-        radial-gradient(1px 1px at 3%  92%, rgba(255,255,255,0.7) 0%, transparent 100%),
-        radial-gradient(1px 1px at 18% 97%, rgba(255,255,255,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 38% 95%, rgba(255,255,255,0.8) 0%, transparent 100%),
-        radial-gradient(1px 1px at 58% 98%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 73% 93%, rgba(255,255,255,0.9) 0%, transparent 100%),
-        radial-gradient(1px 1px at 88% 96%, rgba(255,255,255,0.7) 0%, transparent 100%),
-        radial-gradient(1px 1px at 13% 25%, rgba(200,220,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 43% 72%, rgba(200,220,255,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 68% 48%, rgba(220,200,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 97% 22%, rgba(200,220,255,0.7) 0%, transparent 100%);
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 12px; font-weight: 500; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--ink-soft);
+      margin-bottom: 28px;
+    }
+    .eyebrow .bar { width: 28px; height: 1px; background: var(--ink-soft); }
+    .hero h1 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(3.4rem, 10vw, 9.5rem);
+      line-height: 0.92;
+      letter-spacing: -0.04em;
+      font-weight: 500;
+      margin: 0 0 40px;
+    }
+    .hero h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+    .hero-meta {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      flex-wrap: wrap; gap: 32px;
+      border-top: 1px solid var(--ink); padding-top: 28px;
+    }
+    .hero-meta p {
+      max-width: 460px; font-size: 16px; line-height: 1.55; color: var(--ink-soft);
+      margin: 0;
+    }
+    .hero-availability {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 500;
+    }
+    .pulse {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 0 rgba(34,197,94,0.6);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.55); }
+      70% { box-shadow: 0 0 0 10px rgba(34,197,94,0); }
+      100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
     }
 
-    .stars-md {
-      background-image:
-        radial-gradient(1.5px 1.5px at 7%  20%, rgba(255,255,255,0.95) 0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 33% 14%, rgba(255,255,255,0.85) 0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 58% 28%, rgba(255,255,255,0.9)  0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 80% 8%,  rgba(255,255,255,0.8)  0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 17% 50%, rgba(255,255,255,0.95) 0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 44% 55%, rgba(255,255,255,0.85) 0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 72% 48%, rgba(255,255,255,0.9)  0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 91% 52%, rgba(255,255,255,0.8)  0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 26% 78%, rgba(255,255,255,0.95) 0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 53% 83%, rgba(255,255,255,0.85) 0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 79% 75%, rgba(255,255,255,0.9)  0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 12% 90%, rgba(255,255,255,0.8)  0%, transparent 100%),
-        radial-gradient(2px 2px at 65% 15%, rgba(180,210,255,0.9) 0%, transparent 100%),
-        radial-gradient(2px 2px at 38% 68%, rgba(255,200,220,0.8) 0%, transparent 100%),
-        radial-gradient(2px 2px at 85% 85%, rgba(180,210,255,0.9) 0%, transparent 100%);
+    /* Section */
+    .section { padding: 100px 32px; max-width: 1400px; margin: 0 auto; }
+    .section-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+      border-bottom: 1px solid var(--ink); padding-bottom: 22px; margin-bottom: 56px;
+    }
+    .section-head .label {
+      font-size: 12px; font-weight: 500; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+    .section-head h2 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      letter-spacing: -0.03em; font-weight: 500;
+      margin: 0;
+    }
+    .section-head .count {
+      font-size: 13px; color: var(--ink-mute);
+      font-variant-numeric: tabular-nums;
     }
 
-    .stars-lg {
-      background-image:
-        radial-gradient(2.5px 2.5px at 20% 30%, rgba(255,255,255,1)   0%, transparent 100%),
-        radial-gradient(2.5px 2.5px at 75% 20%, rgba(255,255,255,0.95) 0%, transparent 100%),
-        radial-gradient(2.5px 2.5px at 50% 70%, rgba(255,255,255,1)   0%, transparent 100%),
-        radial-gradient(2.5px 2.5px at 90% 65%, rgba(255,255,255,0.9)  0%, transparent 100%),
-        radial-gradient(3px 3px at 10% 60%, rgba(200,230,255,0.9) 0%, transparent 100%),
-        radial-gradient(3px 3px at 60% 40%, rgba(255,230,200,0.85) 0%, transparent 100%),
-        radial-gradient(2px 2px at 35% 90%, rgba(255,255,255,1) 0%, transparent 100%),
-        radial-gradient(2px 2px at 95% 35%, rgba(220,200,255,0.95) 0%, transparent 100%);
+    /* Work grid */
+    .work-grid {
+      display: grid; grid-template-columns: repeat(12, 1fr);
+      gap: 48px 24px;
     }
-
-    /* Subtle twinkling on a few stars */
-    @keyframes twinkle {
-      0%,100% { opacity: 1; }
-      50%      { opacity: 0.3; }
-    }
-    .stars-lg { animation: twinkle 4s ease-in-out infinite; }
-
-    /* Glass card */
-    .glass {
-      background: rgba(255,255,255,0.07);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.15);
-    }
-    .glass-strong {
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .glass-dark {
-      background: rgba(0,0,0,0.3);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .glass-input {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #fff;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .glass-input::placeholder { color: rgba(255,255,255,0.35); }
-    .glass-input:focus { border-color: rgba(229,9,20,0.7); background: rgba(255,255,255,0.12); }
-    .glass-input option { background: #1e1b4b; color: #fff; }
-
-    .glow-cyan  { box-shadow: 0 0 30px rgba(229,9,20,0.3); }
-    .glow-purple{ box-shadow: 0 0 30px rgba(124,58,237,0.3); }
-    .glow-pink  { box-shadow: 0 0 30px rgba(236,72,153,0.25); }
-
-    .gradient-text {
-      background: linear-gradient(135deg, #ff5a5f, #e50914, #b00710);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    /* Filmbox primary button — red rounded pill */
-    .gradient-btn {
-      background: linear-gradient(135deg, #ff2d3a, #e50914);
-      border: none !important;
-      box-shadow: 0 6px 22px rgba(229,9,20,0.45);
-      color: #fff !important;
-      font-weight: 800 !important;
-      border-radius: 999px !important;
-      letter-spacing: 0.3px;
+    .work-item { cursor: pointer; transition: transform 0.4s cubic-bezier(.2,.7,.2,1); }
+    .work-item:hover { transform: translateY(-4px); }
+    .work-cover {
+      width: 100%; aspect-ratio: 4/3;
+      border-radius: 6px; overflow: hidden;
       position: relative;
+      transition: filter 0.4s;
+    }
+    .work-item:hover .work-cover { filter: brightness(0.96); }
+    .work-info {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-top: 16px; gap: 16px;
+    }
+    .work-info h3 {
+      font-family: 'Fraunces', Georgia, serif; font-weight: 500;
+      font-size: 22px; letter-spacing: -0.01em; margin: 0;
+    }
+    .work-info .meta {
+      font-size: 12px; color: var(--ink-mute); letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .work-tag {
+      display: inline-block; margin-top: 8px;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--ink-soft);
+    }
+
+    .span-7 { grid-column: span 7; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+
+    /* Project covers — typographic compositions */
+    .cv-1 { background: #1B3A6B; overflow: hidden; }
+    .cv-1::before {
+      content: 'A'; position: absolute;
+      font-family: 'Fraunces', serif; font-weight: 900;
+      font-size: 60vw; line-height: 0.7;
+      color: var(--accent);
+      left: -8%; top: -22%;
+      letter-spacing: -0.08em;
+    }
+    .cv-1::after {
+      content: 'aperture'; position: absolute;
+      bottom: 28px; left: 32px;
+      font-family: 'Fraunces', serif; font-style: italic;
+      font-size: 28px; color: var(--cream);
+    }
+    .cv-2 {
+      background: var(--bg);
+      border: 1px solid var(--ink);
       overflow: hidden;
-      transition: all 0.2s;
     }
-    .gradient-btn:hover {
-      background: linear-gradient(135deg, #ff4651, #ff0f1d);
-      box-shadow: 0 8px 30px rgba(229,9,20,0.65);
-      transform: translateY(-2px);
+    .cv-2-grid {
+      position: absolute; inset: 20px;
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
     }
-    .gradient-btn:active { transform: translateY(0); }
-
-    /* Filmbox secondary / outline button — red ring pill */
-    .cyber-btn-outline {
-      background: rgba(229,9,20,0.08);
-      border: 1.5px solid rgba(229,9,20,0.7) !important;
-      color: #ff6b70 !important;
-      font-weight: 700 !important;
-      border-radius: 999px !important;
-      letter-spacing: 0.3px;
-      transition: all 0.2s;
+    .cv-2-grid span { background: var(--ink); border-radius: 2px; }
+    .cv-2-grid span:nth-child(odd) { background: var(--accent); }
+    .cv-2-grid span:nth-child(7n) { background: #1B3A6B; }
+    .cv-3 {
+      background: var(--accent);
+      overflow: hidden;
+      color: var(--cream);
     }
-    .cyber-btn-outline:hover {
-      background: #e50914;
-      color: #fff !important;
-      box-shadow: 0 6px 22px rgba(229,9,20,0.5);
-      transform: translateY(-2px);
+    .cv-3 .big {
+      font-family: 'Fraunces', serif; font-weight: 500;
+      font-style: italic;
+      font-size: clamp(48px, 11vw, 110px);
+      line-height: 0.9; letter-spacing: -0.04em;
+      padding: 32px;
+    }
+    .cv-3 .small {
+      position: absolute; right: 24px; bottom: 24px;
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    }
+    .cv-4 { background: var(--ink); overflow: hidden; }
+    .cv-4 .circle {
+      position: absolute; width: 70%; aspect-ratio: 1;
+      border-radius: 50%; border: 1px solid var(--cream);
+      left: -10%; top: 50%; transform: translateY(-50%);
+    }
+    .cv-4 .circle2 {
+      position: absolute; width: 45%; aspect-ratio: 1;
+      border-radius: 50%; background: var(--accent);
+      right: 12%; top: 18%;
+    }
+    .cv-4 .label {
+      position: absolute; right: 24px; bottom: 24px;
+      color: var(--cream); font-family: 'Fraunces', serif;
+      font-size: 24px; font-style: italic; line-height: 1.1;
+      text-align: right;
+    }
+    .cv-5 {
+      background: linear-gradient(135deg, #E8D7C1 0%, #C9B393 100%);
+      overflow: hidden;
+    }
+    .cv-5 .stack {
+      position: absolute; inset: 0; padding: 28px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .cv-5 .stack .top {
+      font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--ink);
+    }
+    .cv-5 .stack .mid {
+      font-family: 'Fraunces', serif; font-weight: 500;
+      font-size: clamp(36px, 6.5vw, 64px); line-height: 0.95;
+      letter-spacing: -0.03em; color: var(--ink);
+    }
+    .cv-5 .stack .mid em { font-style: italic; }
+    .cv-5 .stack .bot {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      font-size: 12px; color: var(--ink-soft);
+    }
+    .cv-6 { background: #0E2A26; overflow: hidden; }
+    .cv-6 .lines {
+      position: absolute; inset: 0;
+      background-image: repeating-linear-gradient(
+        90deg, transparent 0 calc(100%/9 - 1px), rgba(250,247,240,0.18) calc(100%/9 - 1px) calc(100%/9)
+      );
+    }
+    .cv-6 .center {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      color: var(--cream); font-family: 'Fraunces', serif; font-weight: 500;
+      font-size: clamp(40px, 8vw, 88px); letter-spacing: -0.04em;
+    }
+    .cv-6 .center em { color: var(--accent); font-style: italic; font-weight: 400; }
+
+    /* About */
+    .about-grid {
+      display: grid; grid-template-columns: 5fr 7fr; gap: 80px;
+      align-items: start;
+    }
+    .about-portrait {
+      aspect-ratio: 4/5; border-radius: 6px;
+      background: linear-gradient(180deg, #C8B89E 0%, #8B7A60 100%);
+      position: relative; overflow: hidden;
+    }
+    .about-portrait::after {
+      content: 'MC'; position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fraunces', serif; font-weight: 500;
+      font-size: 96px; color: rgba(14,14,14,0.18);
+      letter-spacing: -0.03em;
+    }
+    .about-text p {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(20px, 2.2vw, 28px); line-height: 1.45;
+      letter-spacing: -0.01em; color: var(--ink);
+      margin: 0 0 24px;
+    }
+    .about-text p.small {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px; line-height: 1.65; color: var(--ink-soft);
+    }
+    .about-list {
+      list-style: none; padding: 0; margin: 32px 0 0;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px;
+    }
+    .about-list li {
+      padding: 14px 0; border-top: 1px solid var(--line-soft);
+      display: flex; justify-content: space-between; font-size: 14px;
+    }
+    .about-list li span:last-child { color: var(--ink-mute); }
+
+    /* Services */
+    .services { display: flex; flex-direction: column; }
+    .service-row {
+      display: grid; grid-template-columns: 80px 1fr 2fr 140px;
+      gap: 32px; padding: 32px 0;
+      border-top: 1px solid var(--line-soft);
+      align-items: baseline;
+      transition: padding 0.3s ease, background 0.3s ease;
+    }
+    .service-row:last-child { border-bottom: 1px solid var(--line-soft); }
+    .service-row:hover { padding-left: 16px; }
+    .service-row .num {
+      font-family: 'Fraunces', serif; font-size: 14px;
+      color: var(--ink-mute); font-variant-numeric: tabular-nums;
+    }
+    .service-row h3 {
+      font-family: 'Fraunces', serif; font-weight: 500;
+      font-size: clamp(22px, 2.5vw, 32px); margin: 0;
+      letter-spacing: -0.02em;
+    }
+    .service-row p {
+      margin: 0; color: var(--ink-soft); font-size: 15px; line-height: 1.55;
+    }
+    .service-row .deliver {
+      font-size: 12px; color: var(--ink-mute);
+      letter-spacing: 0.06em; text-align: right;
     }
 
-    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.6); }
+    /* Marquee */
+    .marquee {
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+      overflow: hidden; padding: 28px 0;
+      background: var(--bg-warm);
+    }
+    .marquee-track {
+      display: flex; gap: 64px; white-space: nowrap;
+      animation: scroll 38s linear infinite;
+      font-family: 'Fraunces', serif; font-size: 32px;
+      letter-spacing: -0.02em; color: var(--ink);
+      width: max-content;
+    }
+    .marquee-track .item { display: inline-flex; align-items: center; gap: 64px; }
+    .marquee-track .star { color: var(--accent); }
+    @keyframes scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
 
-    .step-done   { background: linear-gradient(135deg,#e50914,#b00710); color:#fff; border:none; }
-    .step-active { border: 2px solid #e50914; color: #e50914; box-shadow: 0 0 12px rgba(229,9,20,0.4); }
-    .step-inactive{ border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.3); }
+    /* Contact */
+    .contact { padding: 140px 32px 100px; max-width: 1400px; margin: 0 auto; }
+    .contact .label {
+      font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--ink-mute); margin-bottom: 32px;
+    }
+    .contact h2 {
+      font-family: 'Fraunces', serif; font-weight: 500;
+      font-size: clamp(3rem, 9vw, 8rem);
+      letter-spacing: -0.04em; line-height: 0.95; margin: 0 0 48px;
+    }
+    .contact h2 em { font-style: italic; color: var(--accent); font-weight: 400; }
+    .contact a.mail {
+      display: inline-block;
+      font-family: 'Fraunces', serif; font-size: clamp(28px, 4vw, 52px);
+      letter-spacing: -0.02em; border-bottom: 1px solid var(--ink);
+      padding-bottom: 6px; transition: color 0.2s, border-color 0.2s;
+    }
+    .contact a.mail:hover { color: var(--accent); border-color: var(--accent); }
+    .contact-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 32px; margin-top: 80px;
+      border-top: 1px solid var(--line-soft); padding-top: 32px;
+    }
+    .contact-col h4 {
+      font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--ink-mute); margin: 0 0 16px; font-weight: 500;
+    }
+    .contact-col a, .contact-col p {
+      display: block; font-size: 14px; color: var(--ink);
+      margin: 0 0 6px; line-height: 1.5; transition: color 0.2s;
+    }
+    .contact-col a:hover { color: var(--accent); }
 
-    .pkg-selected { border-color: rgba(229,9,20,0.7) !important; background: rgba(229,9,20,0.08) !important; box-shadow: 0 0 20px rgba(229,9,20,0.2); }
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--line-soft);
+      padding: 28px 32px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
+      font-size: 12px; color: var(--ink-mute);
+    }
 
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+    @media (max-width: 880px) {
+      .nav { padding: 16px 22px; flex-wrap: wrap; }
+      .nav-links { display: none; }
+      .menu-btn { display: block; }
+      .nav.open .nav-links {
+        display: flex; flex-direction: column; gap: 18px; align-items: flex-start;
+        flex-basis: 100%; padding: 18px 0 4px;
+      }
+      .hero { padding: 130px 22px 60px; }
+      .section, .contact { padding: 70px 22px; }
+      .section-head { margin-bottom: 36px; }
+      .work-grid { gap: 40px 16px; }
+      .span-7, .span-5, .span-6 { grid-column: span 12; }
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      .about-portrait { max-width: 320px; }
+      .about-list { grid-template-columns: 1fr; }
+      .service-row { grid-template-columns: 40px 1fr; gap: 14px; padding: 24px 0; }
+      .service-row p, .service-row .deliver { grid-column: 2; }
+      .service-row .deliver { text-align: left; margin-top: 4px; }
+      .contact-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+    }
+    @media (max-width: 480px) {
+      .contact-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <!-- Animated background -->
-  <div class="bg-scene">
-    <div class="stars-sm"></div>
-    <div class="stars-md"></div>
-    <div class="stars-lg"></div>
-    <div class="nebula nebula-1"></div>
-    <div class="nebula nebula-2"></div>
-    <div class="nebula nebula-3"></div>
-  </div>
-
-  <div id="root" style="position:relative;z-index:1;"></div>
+  <div class="grain"></div>
+  <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useRef } = React;
 
-    // ========================================================================
-    //  API CONFIG — automatically picks the right backend.
-    // ========================================================================
-    //  ▼▼▼  AFTER you deploy the backend to Render, paste that URL here  ▼▼▼
-    const LIVE_BACKEND_URL = 'https://cineframe-p56x.onrender.com';
-    //  ▲▲▲  (it ends in .onrender.com — I'll tell you exactly when)  ▲▲▲
+    const PROJECTS = [
+      { id: 1, title: 'Aperture Editions',    year: '2025', cat: 'Brand Identity',  col: 'span-7', cover: 'cv-1', tag: 'Publishing' },
+      { id: 2, title: 'Field Notes Vol. III', year: '2025', cat: 'Editorial',       col: 'span-5', cover: 'cv-2', tag: 'Print · 120pp' },
+      { id: 3, title: 'Sonder Coffee Co.',    year: '2024', cat: 'Packaging',       col: 'span-5', cover: 'cv-3', tag: 'Identity · Packaging' },
+      { id: 4, title: 'Lunar Atlas',          year: '2024', cat: 'Type & Logo',     col: 'span-7', cover: 'cv-4', tag: 'Wordmark' },
+      { id: 5, title: 'Maison Verre',         year: '2024', cat: 'Brand Identity',  col: 'span-6', cover: 'cv-5', tag: 'Hospitality' },
+      { id: 6, title: 'Verdant Index',        year: '2023', cat: 'Web & Digital',   col: 'span-6', cover: 'cv-6', tag: 'Art Direction' },
+    ];
 
-    // When opened on your PC -> use local server.
-    // When opened from a real website -> use the live server above.
-    const isLocal = ['localhost', '127.0.0.1', ''].includes(location.hostname);
-    const API_URL = isLocal ? 'http://localhost:5000' : LIVE_BACKEND_URL;
-
-    // Small helper: call the backend. If the backend is offline, it throws
-    // and the app falls back to DEMO MODE so the preview still works.
-    async function api(path, method = 'GET', body = null, token = null) {
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = 'Bearer ' + token;
-      const res = await fetch(API_URL + path, {
-        method, headers, body: body ? JSON.stringify(body) : null,
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Request failed');
-      return data;
-    }
-
-    const Icons = {
-      Play:       () => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>,
-      PlayLg:     () => <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="5,3 19,12 5,21"/></svg>,
-      Chevron:    () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9,18 15,12 9,6"/></svg>,
-      Download:   () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
-      LogOut:     () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
-      Menu:       () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
-      X:          () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
-      Eye:        () => <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
-      Plus:       () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
-      Trash:      () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>,
-      Check:      () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20,6 9,17 4,12"/></svg>,
-      CreditCard: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
-      Lock:       () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>,
-      Calendar:   () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
-    };
-
-    const PACKAGES = [
-      { id:'basic',    name:'Essential', price:25000, badge:'',           accent:'rgba(99,102,241,0.6)',  desc:'Perfect for intimate events',   includes:['4 hrs coverage','200 edited photos','Online gallery','1 photographer'] },
-      { id:'standard', name:'Premium',  price:45000, badge:'Most Popular', accent:'rgba(229,9,20,0.7)',  desc:'Our most loved package',        includes:['8 hrs coverage','500 edited photos','Cinematic highlight reel','2 photographers','Drone shots'] },
-      { id:'elite',    name:'Elite',    price:75000, badge:'Best Value',   accent:'rgba(236,72,153,0.7)', desc:'Full cinematic experience',     includes:['Full day coverage','1000+ edited photos','Full wedding film (45 min)','3-person crew','Drone + Gimbal','Same-day teaser'] },
+    const SERVICES = [
+      { n: '01', t: 'Brand Identity',    d: 'Marks, wordmarks, type systems and the visual language a brand lives inside.',           del: 'Identity Suite' },
+      { n: '02', t: 'Editorial & Print', d: 'Books, zines, reports, posters — long-form design that holds attention on paper.',        del: 'Print · Layout' },
+      { n: '03', t: 'Packaging',         d: 'Structural and surface design for goods that need to be picked up before they sell.',     del: 'Packaging' },
+      { n: '04', t: 'Art Direction',     d: 'Campaign direction across formats — photography, motion, layout and copy.',               del: 'Direction' },
     ];
 
     function App() {
-      const [user, setUser] = useState(null);
-      const [page, setPage] = useState('home');
       const [menuOpen, setMenuOpen] = useState(false);
-
+      const refs = {
+        work: useRef(null),
+        about: useRef(null),
+        services: useRef(null),
+        contact: useRef(null),
+      };
+      const scrollTo = (key) => {
+        setMenuOpen(false);
+        refs[key]?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
       return (
-        <div className="min-h-screen text-white">
-          <Nav user={user} setUser={setUser} page={page} setPage={setPage} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-          <div style={{paddingTop:'80px'}}>
-            {page==='home'          && <Home setPage={setPage} user={user} />}
-            {page==='portfolio'     && <Portfolio />}
-            {page==='booking'       && <Booking setPage={setPage} user={user} />}
-            {page==='login'         && <Login setUser={setUser} setPage={setPage} />}
-            {page==='register'      && <Register setUser={setUser} setPage={setPage} />}
-            {page==='client-portal' && user && <ClientPortal user={user} setPage={setPage} />}
-            {page==='admin'         && user?.role==='admin' && <AdminDash setPage={setPage} user={user} />}
-          </div>
+        <>
+          <Nav scrollTo={scrollTo} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+          <Hero />
+          <Work refEl={refs.work} />
+          <Marquee />
+          <About refEl={refs.about} />
+          <Services refEl={refs.services} />
+          <Contact refEl={refs.contact} />
           <Footer />
+        </>
+      );
+    }
+
+    function Nav({ scrollTo, menuOpen, setMenuOpen }) {
+      return (
+        <nav className={'nav ' + (menuOpen ? 'open' : '')}>
+          <div className="nav-mark" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <span className="dot"></span>
+            <span>Studio Meridian</span>
+          </div>
+          <div className="nav-links">
+            <button onClick={() => scrollTo('work')}>Work</button>
+            <button onClick={() => scrollTo('about')}>About</button>
+            <button onClick={() => scrollTo('services')}>Services</button>
+            <button className="nav-cta" onClick={() => scrollTo('contact')}>Start a project</button>
+          </div>
+          <button className="menu-btn" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              {menuOpen
+                ? <g><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></g>
+                : <g><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></g>}
+            </svg>
+          </button>
+        </nav>
+      );
+    }
+
+    function Hero() {
+      return (
+        <section className="hero">
+          <div className="eyebrow">
+            <span className="bar"></span>
+            <span>Independent Studio · Est. 2019</span>
+          </div>
+          <h1>Graphic design<br/>with <em>intention</em>,<br/>built to last.</h1>
+          <div className="hero-meta">
+            <p>
+              Studio Meridian is the independent design practice of Mira Cole —
+              building identities, editorial systems and packaging for considered
+              brands across hospitality, publishing and culture.
+            </p>
+            <div className="hero-availability">
+              <span className="pulse"></span>
+              <span>Booking projects for Q3 — 2026</span>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function Work({ refEl }) {
+      return (
+        <section className="section" ref={refEl}>
+          <div className="section-head">
+            <div>
+              <div className="label">§ 01 — Selected Work</div>
+              <h2>A few recent pieces</h2>
+            </div>
+            <div className="count">06 / 06</div>
+          </div>
+          <div className="work-grid">
+            {PROJECTS.map(p => <ProjectCard key={p.id} p={p} />)}
+          </div>
+        </section>
+      );
+    }
+
+    function ProjectCard({ p }) {
+      return (
+        <article className={'work-item ' + p.col}>
+          <div className={'work-cover ' + p.cover}>
+            {p.cover === 'cv-2' && (
+              <div className="cv-2-grid">
+                {Array.from({length: 30}).map((_, i) => <span key={i}></span>)}
+              </div>
+            )}
+            {p.cover === 'cv-3' && (
+              <>
+                <div className="big">Sonder<br/><em>&amp; co.</em></div>
+                <div className="small">Roasted in small lots</div>
+              </>
+            )}
+            {p.cover === 'cv-4' && (
+              <>
+                <div className="circle"></div>
+                <div className="circle2"></div>
+                <div className="label">Lunar<br/>Atlas</div>
+              </>
+            )}
+            {p.cover === 'cv-5' && (
+              <div className="stack">
+                <div className="top">Maison Verre · Bordeaux</div>
+                <div className="mid">A house<br/>of glass<br/><em>&amp; light.</em></div>
+                <div className="bot"><span>Identity · 2024</span><span>MV</span></div>
+              </div>
+            )}
+            {p.cover === 'cv-6' && (
+              <>
+                <div className="lines"></div>
+                <div className="center">verdant <em>index</em></div>
+              </>
+            )}
+          </div>
+          <div className="work-info">
+            <div>
+              <h3>{p.title}</h3>
+              <div className="work-tag">{p.tag}</div>
+            </div>
+            <div className="meta">{p.cat} — {p.year}</div>
+          </div>
+        </article>
+      );
+    }
+
+    function Marquee() {
+      const items = ['Aperture Editions', 'Sonder Coffee', 'Maison Verre', 'Lunar Atlas', 'Verdant', 'Field Notes', 'Northwind Press'];
+      const Loop = () => (
+        <div className="item">
+          {items.map((it, i) => (
+            <React.Fragment key={i}>
+              <span>{it}</span>
+              <span className="star">✦</span>
+            </React.Fragment>
+          ))}
         </div>
+      );
+      return (
+        <div className="marquee">
+          <div className="marquee-track">
+            <Loop />
+            <Loop />
+          </div>
+        </div>
+      );
+    }
+
+    function About({ refEl }) {
+      return (
+        <section className="section" ref={refEl}>
+          <div className="section-head">
+            <div>
+              <div className="label">§ 02 — About</div>
+              <h2>The studio</h2>
+            </div>
+            <div className="count">MC</div>
+          </div>
+          <div className="about-grid">
+            <div className="about-portrait" aria-hidden="true"></div>
+            <div className="about-text">
+              <p>
+                I'm Mira — a graphic designer and art director working between
+                Lisbon and London. Studio Meridian is small, deliberate, and built
+                around long collaborations with clients who care about the details.
+              </p>
+              <p className="small">
+                Trained as a typographer, I treat every brand as a small language —
+                a system of marks, words, colours and rhythms that need to read
+                clearly across a business card, a billboard, a bottle or a screen.
+                The studio works in tight cycles with founders, editors and creative
+                directors, and partners with photographers, illustrators and developers
+                when a project needs more hands.
+              </p>
+              <ul className="about-list">
+                <li><span>Founded</span><span>2019</span></li>
+                <li><span>Based</span><span>Lisbon / London</span></li>
+                <li><span>Recognition</span><span>TDC, D&amp;AD, Brand New</span></li>
+                <li><span>Clients</span><span>30+ worldwide</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function Services({ refEl }) {
+      return (
+        <section className="section" ref={refEl}>
+          <div className="section-head">
+            <div>
+              <div className="label">§ 03 — Services</div>
+              <h2>What the studio does</h2>
+            </div>
+            <div className="count">04</div>
+          </div>
+          <div className="services">
+            {SERVICES.map(s => (
+              <div className="service-row" key={s.n}>
+                <div className="num">{s.n}</div>
+                <h3>{s.t}</h3>
+                <p>{s.d}</p>
+                <div className="deliver">{s.del}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    function Contact({ refEl }) {
+      return (
+        <section className="contact" ref={refEl}>
+          <div className="label">§ 04 — Contact</div>
+          <h2>Have a project<br/>in <em>mind?</em></h2>
+          <a className="mail" href="mailto:hello@studiomeridian.co">hello@studiomeridian.co</a>
+          <div className="contact-grid">
+            <div className="contact-col">
+              <h4>Studio</h4>
+              <p>Studio Meridian</p>
+              <p>Rua das Flores 84, 2º</p>
+              <p>1200-194 Lisboa, Portugal</p>
+            </div>
+            <div className="contact-col">
+              <h4>Elsewhere</h4>
+              <a href="#" onClick={(e)=>e.preventDefault()}>Instagram</a>
+              <a href="#" onClick={(e)=>e.preventDefault()}>Are.na</a>
+              <a href="#" onClick={(e)=>e.preventDefault()}>Read.cv</a>
+            </div>
+            <div className="contact-col">
+              <h4>General</h4>
+              <a href="mailto:hello@studiomeridian.co">hello@studiomeridian.co</a>
+              <a href="mailto:press@studiomeridian.co">press@studiomeridian.co</a>
+            </div>
+            <div className="contact-col">
+              <h4>Hours</h4>
+              <p>Mon — Fri</p>
+              <p>09:00 — 18:00 WET</p>
+            </div>
+          </div>
+        </section>
       );
     }
 
     function Footer() {
       return (
-        <footer style={{borderTop:'1px solid rgba(255,255,255,0.08)',padding:'28px 24px',textAlign:'center',marginTop:40}}>
-          <div style={{maxWidth:1100,margin:'0 auto',display:'flex',flexDirection:'column',gap:6,alignItems:'center'}}>
-            <div style={{fontWeight:900,fontSize:15,letterSpacing:'-0.5px'}}>CINEFRAME</div>
-            <div style={{fontSize:13,color:'rgba(255,255,255,0.4)'}}>
-              © {new Date().getFullYear()} CINEFRAME. All rights reserved.
-            </div>
-            <div style={{fontSize:13,color:'rgba(255,255,255,0.45)'}}>
-              Designed &amp; developed by <span style={{color:'#ff5a5f',fontWeight:800,letterSpacing:1}}>MANXO</span>
-            </div>
-          </div>
+        <footer>
+          <div>© {new Date().getFullYear()} Studio Meridian. All rights reserved.</div>
+          <div>Designed in Lisbon · Set in Fraunces &amp; Inter</div>
         </footer>
-      );
-    }
-
-    // ── Nav ──────────────────────────────────────────────────────────────────────
-    function Nav({ user, setUser, page, setPage, menuOpen, setMenuOpen }) {
-      return (
-        <nav className="glass-dark fixed top-0 left-0 right-0 z-50" style={{borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-          <div style={{maxWidth:1280,margin:'0 auto',padding:'0 24px'}}>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',height:76}}>
-
-              {/* Logo */}
-              <div onClick={()=>{setPage('home');setMenuOpen(false);}} style={{display:'flex',alignItems:'center',gap:12,cursor:'pointer'}}>
-                <div className="gradient-btn" style={{width:40,height:40,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <Icons.Play />
-                </div>
-                <div>
-                  <div style={{fontWeight:900,fontSize:17,letterSpacing:'-0.5px'}}>CINEFRAME</div>
-                  <div style={{fontSize:10,color:'rgba(229,9,20,0.9)',fontWeight:600,letterSpacing:2}}>FILMS & MOMENTS</div>
-                </div>
-              </div>
-
-              {/* Desktop links */}
-              <div style={{display:'flex',alignItems:'center',gap:28}} className="hidden-mobile">
-                <NavBtn label="Portfolio" p="portfolio" page={page} setPage={setPage} />
-                <button onClick={()=>setPage('booking')} className="gradient-btn" style={{padding:'8px 18px',borderRadius:10,fontWeight:700,fontSize:13,border:'none',cursor:'pointer',color:'#fff',display:'flex',alignItems:'center',gap:6}}>
-                  📅 Book Now
-                </button>
-                {user ? (
-                  <>
-                    <NavBtn label={user.role==='admin'?'Dashboard':'My Files'} p={user.role==='admin'?'admin':'client-portal'} page={page} setPage={setPage} />
-                    <button onClick={()=>{setUser(null);setPage('home');}} className="glass" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 16px',borderRadius:10,fontSize:13,fontWeight:600,cursor:'pointer',color:'rgba(252,165,165,1)',border:'1px solid rgba(239,68,68,0.3)'}}>
-                      <Icons.LogOut /> Logout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <NavBtn label="Login" p="login" page={page} setPage={setPage} />
-                    <button onClick={()=>setPage('register')} className="cyber-btn-outline" style={{padding:'8px 18px',borderRadius:0,fontSize:13,cursor:'pointer'}}>
-                      Client Access
-                    </button>
-                  </>
-                )}
-              </div>
-
-              <button onClick={()=>setMenuOpen(!menuOpen)} style={{background:'none',border:'none',color:'#fff',cursor:'pointer',padding:8}} className="show-mobile">
-                {menuOpen ? <Icons.X /> : <Icons.Menu />}
-              </button>
-            </div>
-
-            {menuOpen && (
-              <div className="glass" style={{padding:'12px 0 16px',borderRadius:12,marginBottom:12,display:'flex',flexDirection:'column',gap:4}}>
-                {['Portfolio','Book Now','Login'].map(l => {
-                  const p = l==='Book Now'?'booking':l.toLowerCase().replace(' ','-');
-                  return <button key={l} onClick={()=>{setPage(p);setMenuOpen(false);}} style={{textAlign:'left',padding:'10px 16px',background:'none',border:'none',color:page===p?'#ff5a5f':'rgba(255,255,255,0.8)',cursor:'pointer',fontWeight:600,fontSize:14}}>{l}</button>;
-                })}
-              </div>
-            )}
-          </div>
-        </nav>
-      );
-    }
-
-    function NavBtn({ label, p, page, setPage }) {
-      const active = page === p;
-      return (
-        <button onClick={()=>setPage(p)} style={{background:'none',border:'none',cursor:'pointer',fontWeight:700,fontSize:12,letterSpacing:2,textTransform:'uppercase',color:active?'#ff5a5f':'rgba(255,255,255,0.65)',transition:'color 0.2s',borderBottom:active?'1px solid #ff5a5f':'none',paddingBottom:2}}>
-          {label}
-        </button>
-      );
-    }
-
-    // ── Home ─────────────────────────────────────────────────────────────────────
-    function Home({ setPage, user }) {
-      return (
-        <div>
-          {/* Hero — filmbox featured layout */}
-          <section style={{minHeight:'90vh',display:'flex',alignItems:'center',padding:'40px 24px',maxWidth:1200,margin:'0 auto'}}>
-            <div style={{display:'flex',alignItems:'center',gap:40,flexWrap:'wrap',width:'100%'}}>
-              {/* Left: text */}
-              <div style={{flex:'1 1 420px',minWidth:300,zIndex:1}}>
-                <div style={{fontSize:13,fontWeight:800,letterSpacing:3,color:'#ff5a5f',marginBottom:14}}>
-                  THE ART OF CINEMA
-                </div>
-                <h1 style={{fontSize:'clamp(2.8rem,6vw,5rem)',fontWeight:900,lineHeight:1.02,marginBottom:18,letterSpacing:'-2px'}}>
-                  Cinematic<br/><span className="gradient-text">Visual Storytelling</span>
-                </h1>
-                <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:18,flexWrap:'wrap'}}>
-                  <span style={{display:'flex',alignItems:'center',gap:6,fontWeight:800,fontSize:14}}>
-                    <span style={{color:'#ffb43a'}}>★★★★★</span> 5.0
-                  </span>
-                  <span style={{color:'rgba(255,255,255,0.4)'}}>•</span>
-                  <span style={{color:'rgba(255,255,255,0.6)',fontSize:14}}>Weddings · Events · Films</span>
-                </div>
-                <p style={{fontSize:'clamp(1rem,1.6vw,1.15rem)',color:'rgba(255,255,255,0.6)',marginBottom:32,maxWidth:520,lineHeight:1.7}}>
-                  We capture moments that move hearts and tell stories that last forever. Award-winning cinematography for your biggest days.
-                </p>
-                <div style={{display:'flex',gap:14,flexWrap:'wrap'}}>
-                  <button onClick={()=>setPage('booking')} className="gradient-btn" style={{padding:'15px 34px',fontSize:16,cursor:'pointer',display:'flex',alignItems:'center',gap:8}}>
-                    ▶ Book Now
-                  </button>
-                  <button onClick={()=>setPage('portfolio')} className="cyber-btn-outline" style={{padding:'15px 30px',fontSize:16,cursor:'pointer'}}>
-                    View Work
-                  </button>
-                  {!user && (
-                    <button onClick={()=>setPage('login')} className="cyber-btn-outline" style={{padding:'15px 30px',fontSize:16,cursor:'pointer'}}>
-                      Client Login
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Right: featured visual */}
-              <div style={{flex:'1 1 380px',minWidth:280,position:'relative'}}>
-                <div style={{position:'relative',borderRadius:24,overflow:'hidden',boxShadow:'0 30px 80px rgba(229,9,20,0.35)'}}>
-                  <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=600&fit=crop"
-                    alt="Featured" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
-                  <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(10,2,4,0.7), transparent 50%)'}}></div>
-                  <div onClick={()=>setPage('portfolio')} style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:72,height:72,borderRadius:'50%',background:'#e50914',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxShadow:'0 0 0 10px rgba(229,9,20,0.25)'}}>
-                    <span style={{color:'#fff',fontSize:26,marginLeft:4}}>▶</span>
-                  </div>
-                  <div style={{position:'absolute',bottom:20,left:24,right:24}}>
-                    <div style={{fontWeight:900,fontSize:22}}>Featured Reel 2026</div>
-                    <div style={{color:'rgba(255,255,255,0.7)',fontSize:13}}>Wedding Cinematography Showcase</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Features */}
-          <section style={{padding:'60px 24px',maxWidth:1100,margin:'0 auto'}}>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:20}}>
-              {[
-                {icon:'🎬',title:'Cinematography',desc:'Cinematic wedding films & event videos with professional color grading',color:'#b00710'},
-                {icon:'📸',title:'Photography',desc:'Stunning wedding & event photography capturing every precious moment',color:'#e50914'},
-                {icon:'🔐',title:'Secure Portal',desc:'Access your photos & videos securely. Download in high quality anytime',color:'#ec4899'},
-              ].map(f => (
-                <div key={f.title} className="glass" style={{padding:'32px',borderRadius:20,transition:'transform 0.2s,box-shadow 0.2s'}}
-                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px)';e.currentTarget.style.boxShadow=`0 20px 40px ${f.color}22`;}}
-                  onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='';}}
-                >
-                  <div style={{fontSize:44,marginBottom:16}}>{f.icon}</div>
-                  <h3 style={{fontSize:20,fontWeight:800,marginBottom:10,color:'#fff'}}>{f.title}</h3>
-                  <p style={{color:'rgba(255,255,255,0.55)',lineHeight:1.6,fontSize:14}}>{f.desc}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Packages */}
-          <section style={{padding:'60px 24px',maxWidth:1100,margin:'0 auto'}}>
-            <h2 style={{textAlign:'center',fontSize:'clamp(2rem,4vw,3rem)',fontWeight:900,marginBottom:12}}>Our Packages</h2>
-            <p style={{textAlign:'center',color:'rgba(255,255,255,0.5)',marginBottom:48,fontSize:15}}>Secure your date with just a deposit</p>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:20}}>
-              {PACKAGES.map(pkg => (
-                <div key={pkg.id} className="glass" style={{borderRadius:22,overflow:'hidden',border:`1px solid ${pkg.accent}`,position:'relative',display:'flex',flexDirection:'column'}}>
-                  {pkg.badge && (
-                    <div style={{position:'absolute',top:16,right:16,background:pkg.accent,padding:'4px 12px',borderRadius:50,fontSize:11,fontWeight:800}}>{pkg.badge}</div>
-                  )}
-                  <div style={{padding:'28px 28px 0'}}>
-                    <h3 style={{fontSize:22,fontWeight:900,marginBottom:4}}>{pkg.name}</h3>
-                    <p style={{color:'rgba(255,255,255,0.5)',fontSize:13,marginBottom:16}}>{pkg.desc}</p>
-                    <div style={{fontSize:36,fontWeight:900,marginBottom:2}}>₹{pkg.price.toLocaleString()}</div>
-                    <div style={{fontSize:13,color:'rgba(229,9,20,0.9)',marginBottom:20}}>Deposit from ₹{Math.ceil(pkg.price*0.3).toLocaleString()}</div>
-                    <ul style={{listStyle:'none',padding:0,margin:'0 0 24px',display:'flex',flexDirection:'column',gap:8}}>
-                      {pkg.includes.map(item => (
-                        <li key={item} style={{fontSize:13,color:'rgba(255,255,255,0.75)',display:'flex',alignItems:'center',gap:8}}>
-                          <span style={{color:'#ff5a5f',flexShrink:0}}><Icons.Check /></span>{item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div style={{padding:'0 28px 28px',marginTop:'auto'}}>
-                    <button onClick={()=>setPage('booking')} className="gradient-btn" style={{width:'100%',padding:'12px',borderRadius:12,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15}}>
-                      Book This Package
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* CTA */}
-          <section style={{padding:'60px 24px 80px',textAlign:'center'}}>
-            <div className="glass-strong" style={{maxWidth:700,margin:'0 auto',padding:'48px 40px',borderRadius:28}}>
-              <h2 style={{fontSize:'clamp(1.8rem,4vw,2.8rem)',fontWeight:900,marginBottom:16}}>Ready to Book?</h2>
-              <p style={{color:'rgba(255,255,255,0.6)',fontSize:15,marginBottom:32,lineHeight:1.7}}>
-                Browse our portfolio or secure your date with a deposit today
-              </p>
-              <div style={{display:'flex',gap:16,justifyContent:'center',flexWrap:'wrap'}}>
-                <button onClick={()=>setPage('portfolio')} className="cyber-btn-outline" style={{padding:'12px 28px',borderRadius:0,fontSize:15,cursor:'pointer'}}>
-                  Explore Portfolio
-                </button>
-                <button onClick={()=>setPage('booking')} className="gradient-btn" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,cursor:'pointer',color:'#fff',border:'none',fontSize:15}}>
-                  📅 Book Now
-                </button>
-              </div>
-            </div>
-          </section>
-        </div>
-      );
-    }
-
-    // ── Portfolio ────────────────────────────────────────────────────────────────
-    function Portfolio() {
-      const [tab, setTab] = useState('videos');
-      const [selected, setSelected] = useState(null);
-
-      const videos = [
-        {id:1,title:'Wedding Highlight - Raj & Priya',thumb:'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop',dur:'5:42'},
-        {id:2,title:'Corporate Event Film',           thumb:'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=400&fit=crop',dur:'3:20'},
-        {id:3,title:'Cinematic Reel 2024',            thumb:'https://images.unsplash.com/photo-1533000971552-74f440642117?w=600&h=400&fit=crop',dur:'2:15'},
-        {id:4,title:'Event Coverage - Tech Summit',   thumb:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop',dur:'4:30'},
-      ];
-      const photos = [
-        {id:1,title:'Wedding Day - Ceremony', src:'https://images.unsplash.com/photo-1519741497674-611481863552?w=500&h=650&fit=crop'},
-        {id:2,title:'Reception Moments',      src:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=500&h=650&fit=crop'},
-        {id:3,title:'Event Photography',      src:'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=500&h=650&fit=crop'},
-        {id:4,title:'Detail Shots',           src:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=650&fit=crop'},
-        {id:5,title:'Bride Portrait',         src:'https://images.unsplash.com/photo-1494976866925-5b100481aa4b?w=500&h=650&fit=crop'},
-        {id:6,title:'Group Photos',           src:'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=500&h=650&fit=crop'},
-      ];
-
-      return (
-        <div style={{minHeight:'100vh',padding:'48px 24px'}}>
-          <div style={{maxWidth:1200,margin:'0 auto'}}>
-            <h1 style={{fontSize:'clamp(2.5rem,5vw,4rem)',fontWeight:900,marginBottom:12,textAlign:'center'}}>Our Portfolio</h1>
-            <p style={{textAlign:'center',color:'rgba(255,255,255,0.5)',marginBottom:40}}>A glimpse into our cinematic world</p>
-
-            <div style={{display:'flex',gap:12,justifyContent:'center',marginBottom:40}}>
-              {['videos','photos'].map(t => (
-                <button key={t} onClick={()=>setTab(t)} className={tab===t?'gradient-btn':'glass'} style={{padding:'10px 24px',borderRadius:12,fontWeight:700,cursor:'pointer',border:'none',color:'#fff',fontSize:14}}>
-                  {t==='videos'?'🎬 Videos':'📸 Photos'}
-                </button>
-              ))}
-            </div>
-
-            {tab==='videos' && (
-              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:16}}>
-                {videos.map(v => (
-                  <div key={v.id} onClick={()=>setSelected(v)} style={{borderRadius:18,overflow:'hidden',cursor:'pointer',position:'relative',aspectRatio:'4/3'}}
-                    onMouseEnter={e=>e.currentTarget.querySelector('.overlay').style.opacity='1'}
-                    onMouseLeave={e=>e.currentTarget.querySelector('.overlay').style.opacity='0'}>
-                    <img src={v.thumb} alt={v.title} style={{width:'100%',height:'100%',objectFit:'cover',transition:'transform 0.4s'}}
-                      onMouseEnter={e=>e.target.style.transform='scale(1.07)'}
-                      onMouseLeave={e=>e.target.style.transform='scale(1)'} />
-                    <div className="overlay" style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.55)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',opacity:0,transition:'opacity 0.3s',backdropFilter:'blur(2px)'}}>
-                      <span style={{color:'rgba(229,9,20,0.95)'}}><Icons.PlayLg /></span>
-                    </div>
-                    <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'16px',background:'linear-gradient(transparent,rgba(0,0,0,0.8))'}}>
-                      <div style={{fontWeight:700,fontSize:14}}>{v.title}</div>
-                      <div style={{fontSize:12,color:'rgba(255,255,255,0.6)'}}>{v.dur}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {tab==='photos' && (
-              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:16}}>
-                {photos.map(p => (
-                  <div key={p.id} onClick={()=>setSelected(p)} style={{borderRadius:18,overflow:'hidden',cursor:'pointer',position:'relative',aspectRatio:'3/4'}}
-                    onMouseEnter={e=>e.currentTarget.querySelector('.overlay').style.opacity='1'}
-                    onMouseLeave={e=>e.currentTarget.querySelector('.overlay').style.opacity='0'}>
-                    <img src={p.src} alt={p.title} style={{width:'100%',height:'100%',objectFit:'cover',transition:'transform 0.4s'}}
-                      onMouseEnter={e=>e.target.style.transform='scale(1.07)'}
-                      onMouseLeave={e=>e.target.style.transform='scale(1)'} />
-                    <div className="overlay" style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',opacity:0,transition:'opacity 0.3s',backdropFilter:'blur(2px)'}}>
-                      <span style={{color:'rgba(229,9,20,0.95)'}}><Icons.Eye /></span>
-                    </div>
-                    <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'12px 14px',background:'linear-gradient(transparent,rgba(0,0,0,0.8)',fontSize:13,fontWeight:600}}>{p.title}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {selected && (
-            <div onClick={()=>setSelected(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',backdropFilter:'blur(16px)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100,padding:24}}>
-              <div onClick={e=>e.stopPropagation()} style={{maxWidth:860,width:'100%'}}>
-                <img src={selected.thumb||selected.src} alt={selected.title} style={{width:'100%',borderRadius:20}} />
-                <p style={{textAlign:'center',fontWeight:700,fontSize:18,marginTop:16}}>{selected.title}</p>
-                <p style={{textAlign:'center',color:'rgba(255,255,255,0.4)',fontSize:13,marginTop:4}}>Click outside to close</p>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    // ── Booking ──────────────────────────────────────────────────────────────────
-    function Booking({ setPage, user }) {
-      const [step, setStep] = useState(1);
-      const [f, setF] = useState({ name:user?.name||'', email:user?.email||'', phone:'', eventType:'', eventDate:'', venue:'', notes:'', pkgId:'', payType:'50', custom:'', card:'', expiry:'', cvv:'', cardName:'' });
-      const [done, setDone] = useState(false);
-      const [ref, setRef] = useState('');
-      const set = (k,v) => setF(p=>({...p,[k]:v}));
-      const pkg = PACKAGES.find(p=>p.id===f.pkgId);
-      const deposit = () => { if(!pkg) return 0; if(f.payType==='custom') return parseInt(f.custom)||0; return Math.ceil(pkg.price*(parseInt(f.payType)/100)); };
-
-      // Loads the Razorpay popup script only when first needed
-      const loadRazorpay = () => new Promise((resolve) => {
-        if (window.Razorpay) return resolve(true);
-        const s = document.createElement('script');
-        s.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        s.onload = () => resolve(true);
-        s.onerror = () => resolve(false);
-        document.body.appendChild(s);
-      });
-
-      // Real payment via Razorpay (falls back to demo if backend is offline)
-      const payNow = async () => {
-        const amount = deposit();
-        if (amount < 10) { alert('Minimum payment is ₹10. Please enter a higher amount.'); return; }
-
-        const bookingData = {
-          clientName:f.name, clientEmail:f.email, clientPhone:f.phone,
-          eventType:f.eventType, eventDate:f.eventDate, venue:f.venue, notes:f.notes,
-          packageId:pkg.id, packageName:pkg.name,
-          totalAmount:pkg.price, paidAmount:amount,
-        };
-
-        try {
-          // 1. Ask backend to create a Razorpay order
-          const order = await api('/api/bookings/create-order', 'POST', { amount });
-          await loadRazorpay();
-
-          // 2. Open Razorpay's secure payment popup
-          const rzp = new window.Razorpay({
-            key: order.key,
-            amount: order.amount,
-            currency: 'INR',
-            name: 'CINEFRAME',
-            description: pkg.name + ' Package — Deposit',
-            order_id: order.orderId,
-            prefill: { name:f.name, email:f.email, contact:f.phone },
-            theme: { color: '#e50914' },
-            // Razorpay default checkout — shows ALL activated methods
-            // (UPI / GPay / PhonePe / Paytm, Cards, Netbanking, Wallets)
-            handler: async (resp) => {
-              // 3. Payment done — verify + save booking on backend
-              const result = await api('/api/bookings/confirm', 'POST', {
-                razorpay_order_id: resp.razorpay_order_id,
-                razorpay_payment_id: resp.razorpay_payment_id,
-                razorpay_signature: resp.razorpay_signature,
-                booking: bookingData,
-              });
-              setRef(result.bookingRef);
-              setDone(true);
-            },
-          });
-          rzp.open();
-        } catch (e) {
-          // Backend offline -> DEMO MODE (fake confirmation so preview works)
-          if (e.message.includes('Failed to fetch') || !window.Razorpay) {
-            setRef('CF-' + Date.now().toString(36).toUpperCase());
-            setDone(true);
-          } else {
-            alert('Payment error: ' + e.message);
-          }
-        }
-      };
-
-      const inp = {width:'100%',padding:'12px 16px',borderRadius:12,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',backdropFilter:'blur(10px)',boxSizing:'border-box'};
-      const focusStyle = e => { e.target.style.borderColor='rgba(229,9,20,0.7)'; e.target.style.background='rgba(255,255,255,0.13)'; };
-      const blurStyle  = e => { e.target.style.borderColor='rgba(255,255,255,0.15)'; e.target.style.background='rgba(255,255,255,0.08)'; };
-
-      const StepDot = ({n,label}) => {
-        const done2=step>n, active=step===n;
-        return (
-          <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <div className={done2?'step-done':active?'step-active':'step-inactive'} style={{width:34,height:34,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:800,flexShrink:0}}>
-              {done2?<Icons.Check />:n}
-            </div>
-            <span style={{fontSize:13,fontWeight:600,color:active?'#fff':done2?'#ff5a5f':'rgba(255,255,255,0.3)'}}>{label}</span>
-          </div>
-        );
-      };
-
-      if (done) return (
-        <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'40px 24px'}}>
-          <div style={{maxWidth:520,width:'100%',textAlign:'center'}}>
-            <div style={{width:96,height:96,borderRadius:'50%',background:'rgba(16,185,129,0.15)',border:'2px solid rgba(16,185,129,0.6)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 28px',fontSize:40}}>
-              ✅
-            </div>
-            <h1 style={{fontSize:36,fontWeight:900,marginBottom:12}}>Booking Confirmed!</h1>
-            <p style={{color:'rgba(255,255,255,0.5)',marginBottom:32,lineHeight:1.7}}>
-              Reference: <span style={{color:'#ff5a5f',fontWeight:700}}>{ref}</span><br/>
-              Confirmation sent to <span style={{color:'#fff'}}>{f.email}</span>
-            </p>
-            <div className="glass" style={{borderRadius:20,padding:'24px',marginBottom:28,textAlign:'left'}}>
-              {[
-                ['Package', pkg?.name],
-                ['Event', f.eventType+' — '+f.eventDate],
-                ['Total', '₹'+pkg?.price.toLocaleString()],
-              ].map(([k,v])=>(
-                <div key={k} style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid rgba(255,255,255,0.08)',fontSize:14}}>
-                  <span style={{color:'rgba(255,255,255,0.5)'}}>{k}</span><span style={{fontWeight:700}}>{v}</span>
-                </div>
-              ))}
-              <div style={{display:'flex',justifyContent:'space-between',padding:'12px 0 4px',fontSize:16}}>
-                <span style={{color:'#34d399',fontWeight:700}}>Deposit Paid</span>
-                <span style={{color:'#34d399',fontWeight:900}}>₹{deposit().toLocaleString()}</span>
-              </div>
-              <div style={{display:'flex',justifyContent:'space-between',padding:'4px 0',fontSize:14}}>
-                <span style={{color:'#fbbf24'}}>Balance Due on Day</span>
-                <span style={{color:'#fbbf24',fontWeight:700}}>₹{(pkg?.price-deposit()).toLocaleString()}</span>
-              </div>
-            </div>
-            <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
-              <button onClick={()=>setPage('home')} className="gradient-btn" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:15}}>Back to Home</button>
-              {!user && <button onClick={()=>setPage('register')} className="glass" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,cursor:'pointer',color:'#ff5a5f',border:'1px solid rgba(229,9,20,0.3)',fontSize:15}}>Create Account</button>}
-            </div>
-          </div>
-        </div>
-      );
-
-      return (
-        <div style={{minHeight:'100vh',padding:'40px 24px'}}>
-          <div style={{maxWidth:720,margin:'0 auto'}}>
-            <div style={{textAlign:'center',marginBottom:36}}>
-              <h1 style={{fontSize:'clamp(2rem,5vw,3rem)',fontWeight:900,marginBottom:8}}>Book a Session</h1>
-              <p style={{color:'rgba(255,255,255,0.5)'}}>Secure your date with a deposit — pay the rest on the day</p>
-            </div>
-
-            {/* Steps */}
-            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,marginBottom:36}}>
-              <StepDot n={1} label="Details" />
-              <div style={{flex:1,maxWidth:50,height:1,background:'rgba(255,255,255,0.12)'}}></div>
-              <StepDot n={2} label="Package" />
-              <div style={{flex:1,maxWidth:50,height:1,background:'rgba(255,255,255,0.12)'}}></div>
-              <StepDot n={3} label="Payment" />
-            </div>
-
-            {/* Step 1 */}
-            {step===1 && (
-              <div className="glass" style={{borderRadius:24,padding:'32px'}}>
-                <h2 style={{fontSize:22,fontWeight:800,marginBottom:24}}>Your Details</h2>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
-                  {[['name','Full Name *','Your full name','text'],['email','Email *','your@email.com','email'],['phone','Phone *','+91 98765 43210','tel'],['venue','Venue / Location','City, venue name','text']].map(([k,label,ph,type])=>(
-                    <div key={k} style={{display:'flex',flexDirection:'column',gap:6}}>
-                      <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600}}>{label}</label>
-                      <input style={inp} type={type} placeholder={ph} value={f[k]} onChange={e=>set(k,e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
-                    </div>
-                  ))}
-                  <div style={{display:'flex',flexDirection:'column',gap:6}}>
-                    <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600}}>Event Type *</label>
-                    <select style={{...inp,cursor:'pointer'}} value={f.eventType} onChange={e=>set('eventType',e.target.value)} onFocus={focusStyle} onBlur={blurStyle}>
-                      <option value="">Select type...</option>
-                      {[['wedding','💍 Wedding'],['engagement','💑 Engagement / Pre-wedding'],['birthday','🎂 Birthday / Milestone'],['corporate','🏢 Corporate Event'],['product','📦 Product / Commercial'],['other','✨ Other']].map(([v,l])=><option key={v} value={v}>{l}</option>)}
-                    </select>
-                  </div>
-                  <div style={{display:'flex',flexDirection:'column',gap:6}}>
-                    <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600}}>Event Date *</label>
-                    <input style={inp} type="date" value={f.eventDate} onChange={e=>set('eventDate',e.target.value)} min={new Date().toISOString().split('T')[0]} onFocus={focusStyle} onBlur={blurStyle} />
-                  </div>
-                </div>
-                <div style={{marginTop:16,display:'flex',flexDirection:'column',gap:6}}>
-                  <label style={{fontSize:12,color:'rgba(255,255,255,0.5)',fontWeight:600}}>Special Requests / Notes</label>
-                  <textarea style={{...inp,resize:'none',height:90}} placeholder="Tell us about your vision..." value={f.notes} onChange={e=>set('notes',e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
-                </div>
-                <div style={{display:'flex',justifyContent:'space-between',marginTop:28}}>
-                  <button onClick={()=>setPage('home')} className="glass" style={{padding:'12px 24px',borderRadius:12,cursor:'pointer',color:'rgba(255,255,255,0.6)',border:'1px solid rgba(255,255,255,0.12)',fontWeight:600,fontSize:14}}>Cancel</button>
-                  <button onClick={()=>{if(f.name&&f.email&&f.phone&&f.eventType&&f.eventDate)setStep(2);}}
-                    disabled={!f.name||!f.email||!f.phone||!f.eventType||!f.eventDate}
-                    className="gradient-btn" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:14,opacity:(!f.name||!f.email||!f.phone||!f.eventType||!f.eventDate)?0.4:1}}>
-                    Next: Choose Package →
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2 */}
-            {step===2 && (
-              <div style={{display:'flex',flexDirection:'column',gap:14}}>
-                {PACKAGES.map(p=>(
-                  <div key={p.id} onClick={()=>set('pkgId',p.id)} className={f.pkgId===p.id?'pkg-selected glass':'glass'}
-                    style={{borderRadius:20,padding:'22px 24px',cursor:'pointer',border:`1px solid ${f.pkgId===p.id?'rgba(229,9,20,0.6)':'rgba(255,255,255,0.1)'}`,transition:'all 0.2s',position:'relative'}}>
-                    {p.badge && <span style={{position:'absolute',top:14,right:14,background:p.accent,padding:'3px 10px',borderRadius:50,fontSize:11,fontWeight:800}}>{p.badge}</span>}
-                    <div style={{display:'flex',alignItems:'flex-start',gap:16}}>
-                      <div style={{width:24,height:24,borderRadius:'50%',border:`2px solid ${f.pkgId===p.id?'#e50914':'rgba(255,255,255,0.2)'}`,background:f.pkgId===p.id?'#e50914':'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:4,transition:'all 0.2s'}}>
-                        {f.pkgId===p.id&&<span style={{color:'#000',transform:'scale(0.75)',display:'flex'}}><Icons.Check /></span>}
-                      </div>
-                      <div style={{flex:1}}>
-                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:8}}>
-                          <div>
-                            <h3 style={{fontSize:19,fontWeight:900,marginBottom:4}}>{p.name}</h3>
-                            <p style={{color:'rgba(255,255,255,0.5)',fontSize:13,marginBottom:12}}>{p.desc}</p>
-                            <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
-                              {p.includes.map(i=><span key={i} style={{fontSize:12,background:'rgba(255,255,255,0.08)',padding:'4px 10px',borderRadius:50,color:'rgba(255,255,255,0.7)'}}>{i}</span>)}
-                            </div>
-                          </div>
-                          <div style={{textAlign:'right',flexShrink:0}}>
-                            <div style={{fontSize:26,fontWeight:900}}>₹{p.price.toLocaleString()}</div>
-                            <div style={{fontSize:12,color:'rgba(229,9,20,0.9)'}}>deposit from ₹{Math.ceil(p.price*0.3).toLocaleString()}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                <div style={{display:'flex',justifyContent:'space-between',marginTop:8}}>
-                  <button onClick={()=>setStep(1)} className="glass" style={{padding:'12px 24px',borderRadius:12,cursor:'pointer',color:'rgba(255,255,255,0.6)',border:'1px solid rgba(255,255,255,0.12)',fontWeight:600,fontSize:14}}>← Back</button>
-                  <button onClick={()=>{if(f.pkgId)setStep(3);}} disabled={!f.pkgId}
-                    className="gradient-btn" style={{padding:'12px 28px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:14,opacity:!f.pkgId?0.4:1}}>
-                    Next: Payment →
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3 */}
-            {step===3&&pkg&&(
-              <div style={{display:'flex',flexDirection:'column',gap:16}}>
-                {/* Summary */}
-                <div className="glass" style={{borderRadius:20,padding:'22px 24px'}}>
-                  <h3 style={{fontWeight:800,marginBottom:14,fontSize:16}}>Order Summary</h3>
-                  {[['Package',pkg.name],['Event',`${f.eventType} — ${f.eventDate}`],['Total','₹'+pkg.price.toLocaleString()]].map(([k,v])=>(
-                    <div key={k} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid rgba(255,255,255,0.06)',fontSize:14}}>
-                      <span style={{color:'rgba(255,255,255,0.5)'}}>{k}</span><span style={{fontWeight:700}}>{v}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Deposit picker */}
-                <div className="glass" style={{borderRadius:20,padding:'22px 24px'}}>
-                  <h3 style={{fontWeight:800,marginBottom:16,fontSize:16}}>How much to pay now?</h3>
-                  <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:16}}>
-                    {[['30','30%',`₹${Math.ceil(pkg.price*0.3).toLocaleString()}`],['50','50%',`₹${Math.ceil(pkg.price*0.5).toLocaleString()}`],['100','Full',`₹${pkg.price.toLocaleString()}`],['custom','Custom','Enter amount']].map(([val,label,sub])=>(
-                      <button key={val} onClick={()=>set('payType',val)}
-                        style={{padding:'12px 8px',borderRadius:14,border:`2px solid ${f.payType===val?'rgba(229,9,20,0.7)':'rgba(255,255,255,0.1)'}`,background:f.payType===val?'rgba(229,9,20,0.1)':'rgba(255,255,255,0.05)',cursor:'pointer',textAlign:'center',transition:'all 0.2s'}}>
-                        <div style={{fontWeight:900,fontSize:15,color:'#fff'}}>{label}</div>
-                        <div style={{fontSize:11,color:'rgba(255,255,255,0.45)',marginTop:2}}>{sub}</div>
-                      </button>
-                    ))}
-                  </div>
-                  {f.payType==='custom'&&(
-                    <div style={{marginBottom:16}}>
-                      <input style={inp} type="number" min={10} placeholder="Enter amount (minimum ₹10)"
-                        value={f.custom} onChange={e=>set('custom',e.target.value)} onFocus={focusStyle} onBlur={blurStyle} />
-                      {f.custom!=='' && deposit()<10 && (
-                        <div style={{color:'#fca5a5',fontSize:12,marginTop:6}}>Minimum payment is ₹10</div>
-                      )}
-                    </div>
-                  )}
-                  <div className="glass-strong" style={{borderRadius:16,padding:'16px 20px',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
-                    <div>
-                      <div style={{fontSize:12,color:'rgba(255,255,255,0.5)',marginBottom:4}}>Paying now</div>
-                      <div style={{fontSize:28,fontWeight:900,color:'#ff5a5f'}}>₹{deposit().toLocaleString()}</div>
-                    </div>
-                    <div style={{textAlign:'right'}}>
-                      <div style={{fontSize:12,color:'rgba(255,255,255,0.5)',marginBottom:4}}>Balance due on the day</div>
-                      <div style={{fontSize:20,fontWeight:800,color:'#fbbf24'}}>₹{(pkg.price-deposit()).toLocaleString()}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment methods info */}
-                <div className="glass" style={{borderRadius:20,padding:'22px 24px'}}>
-                  <h3 style={{fontWeight:800,marginBottom:10,fontSize:16,display:'flex',alignItems:'center',gap:8}}><Icons.Lock /> Secure Payment</h3>
-                  <p style={{color:'rgba(255,255,255,0.6)',fontSize:14,lineHeight:1.7,marginBottom:14}}>
-                    Click the button below — a secure Razorpay window will open where you can pay with:
-                  </p>
-                  <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
-                    {['📱 UPI','🟢 Google Pay','🟣 PhonePe','🔵 Paytm','💳 Cards','🏦 Net Banking','👛 Wallets'].map(m=>(
-                      <span key={m} style={{fontSize:13,background:'rgba(229,9,20,0.12)',color:'#ff6b70',padding:'6px 12px',borderRadius:50,fontWeight:600}}>{m}</span>
-                    ))}
-                  </div>
-                  <div style={{marginTop:16,display:'flex',alignItems:'center',gap:8,fontSize:12,color:'rgba(255,255,255,0.35)'}}>
-                    <Icons.Lock /> 256-bit SSL encrypted · Powered by Razorpay
-                  </div>
-                </div>
-
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12,marginTop:4}}>
-                  <button onClick={()=>setStep(2)} className="glass" style={{padding:'12px 24px',borderRadius:12,cursor:'pointer',color:'rgba(255,255,255,0.6)',border:'1px solid rgba(255,255,255,0.12)',fontWeight:600,fontSize:14}}>← Back</button>
-                  <button onClick={payNow}
-                    disabled={deposit()<10}
-                    className="gradient-btn" style={{padding:'14px 28px',borderRadius:14,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15,opacity:(deposit()<10)?0.4:1}}>
-                    Pay ₹{deposit().toLocaleString()} & Confirm →
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    }
-
-    // ── Login ────────────────────────────────────────────────────────────────────
-    function Login({ setUser, setPage }) {
-      const [email, setEmail] = useState('');
-      const [pass, setPass] = useState('');
-      const [err, setErr] = useState('');
-      const inp = {width:'100%',padding:'13px 16px',borderRadius:14,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',boxSizing:'border-box'};
-      const fo = e=>{e.target.style.borderColor='rgba(229,9,20,0.7)';};
-      const bl = e=>{e.target.style.borderColor='rgba(255,255,255,0.15)';};
-
-      const doLogin = async () => {
-        if (!email || !pass) { setErr('Fill all fields'); return; }
-        try {
-          // Try the REAL backend
-          const data = await api('/api/auth/login', 'POST', { email, password: pass });
-          const u = { ...data.user, token: data.token };
-          setUser(u);
-          setPage(u.role === 'admin' ? 'admin' : 'client-portal');
-        } catch (e) {
-          // Backend offline -> DEMO MODE (so the preview still works)
-          if (e.message.includes('Failed to fetch')) {
-            const a = email === 'admin@cineframe.com';
-            setUser({ id: 1, name: email.split('@')[0], email, role: a ? 'admin' : 'client', demo: true });
-            setPage(a ? 'admin' : 'client-portal');
-          } else {
-            setErr(e.message);
-          }
-        }
-      };
-
-      return (
-        <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
-          <div className="glass" style={{maxWidth:420,width:'100%',borderRadius:28,padding:'40px'}}>
-            <h2 style={{fontSize:28,fontWeight:900,marginBottom:6}}>Client Login</h2>
-            <p style={{color:'rgba(255,255,255,0.45)',fontSize:14,marginBottom:28}}>Welcome back</p>
-            {err&&<div style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:12,padding:'10px 14px',fontSize:13,color:'#fca5a5',marginBottom:16}}>{err}</div>}
-            <div style={{display:'flex',flexDirection:'column',gap:14}}>
-              <input style={inp} type="email" placeholder="Email address" value={email} onChange={e=>setEmail(e.target.value)} onFocus={fo} onBlur={bl} />
-              <input style={inp} type="password" placeholder="Password" value={pass} onChange={e=>setPass(e.target.value)} onFocus={fo} onBlur={bl} onKeyDown={e=>{if(e.key==='Enter')doLogin();}} />
-              <button onClick={doLogin}
-                className="gradient-btn" style={{padding:'14px',borderRadius:14,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15}}>
-                Login
-              </button>
-            </div>
-            <p style={{textAlign:'center',color:'rgba(255,255,255,0.4)',marginTop:20,fontSize:14}}>
-              No account? <button onClick={()=>setPage('register')} style={{background:'none',border:'none',color:'#ff5a5f',cursor:'pointer',fontWeight:700,fontSize:14}}>Register here</button>
-            </p>
-          </div>
-        </div>
-      );
-    }
-
-    // ── Register ─────────────────────────────────────────────────────────────────
-    function Register({ setUser, setPage }) {
-      const [name, setName] = useState('');
-      const [email, setEmail] = useState('');
-      const [pass, setPass] = useState('');
-      const inp = {width:'100%',padding:'13px 16px',borderRadius:14,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',boxSizing:'border-box'};
-      const fo=e=>e.target.style.borderColor='rgba(229,9,20,0.7)';
-      const bl=e=>e.target.style.borderColor='rgba(255,255,255,0.15)';
-
-      const doRegister = async () => {
-        if (!name || !email || !pass) return;
-        try {
-          const data = await api('/api/auth/register', 'POST', { name, email, password: pass });
-          setUser({ ...data.user, token: data.token });
-          setPage('client-portal');
-        } catch (e) {
-          if (e.message.includes('Failed to fetch')) {
-            setUser({ id: Date.now(), name, email, role: 'client', demo: true });
-            setPage('client-portal');
-          } else {
-            alert(e.message);
-          }
-        }
-      };
-
-      return (
-        <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
-          <div className="glass" style={{maxWidth:420,width:'100%',borderRadius:28,padding:'40px'}}>
-            <h2 style={{fontSize:28,fontWeight:900,marginBottom:6}}>Create Account</h2>
-            <p style={{color:'rgba(255,255,255,0.45)',fontSize:14,marginBottom:28}}>Get access to your files</p>
-            <div style={{display:'flex',flexDirection:'column',gap:14}}>
-              <input style={inp} type="text" placeholder="Full Name" value={name} onChange={e=>setName(e.target.value)} onFocus={fo} onBlur={bl} />
-              <input style={inp} type="email" placeholder="Email address" value={email} onChange={e=>setEmail(e.target.value)} onFocus={fo} onBlur={bl} />
-              <input style={inp} type="password" placeholder="Password" value={pass} onChange={e=>setPass(e.target.value)} onFocus={fo} onBlur={bl} />
-              <button onClick={doRegister}
-                className="gradient-btn" style={{padding:'14px',borderRadius:14,fontWeight:800,border:'none',cursor:'pointer',color:'#fff',fontSize:15}}>
-                Create Account
-              </button>
-            </div>
-            <p style={{textAlign:'center',color:'rgba(255,255,255,0.4)',marginTop:20,fontSize:14}}>
-              Already have access? <button onClick={()=>setPage('login')} style={{background:'none',border:'none',color:'#ff5a5f',cursor:'pointer',fontWeight:700,fontSize:14}}>Login</button>
-            </p>
-          </div>
-        </div>
-      );
-    }
-
-    // ── Client Portal ─────────────────────────────────────────────────────────────
-    function ClientPortal({ user, setPage }) {
-      const [deliveries, setDeliveries] = useState([]);
-      const [bookings, setBookings] = useState([]);
-      const [loading, setLoading] = useState(true);
-
-      useEffect(() => {
-        (async () => {
-          try {
-            const [d, b] = await Promise.all([
-              api('/api/galleries/mine', 'GET', null, user.token),
-              api('/api/bookings/mine', 'GET', null, user.token),
-            ]);
-            setDeliveries(d || []);
-            setBookings(b || []);
-          } catch (e) {
-            // backend offline -> demo fallback
-            setDeliveries([]);
-            setBookings([]);
-          }
-          setLoading(false);
-        })();
-      }, []);
-
-      return (
-        <div style={{minHeight:'100vh',padding:'40px 24px'}}>
-          <div style={{maxWidth:1000,margin:'0 auto'}}>
-            <h1 style={{fontSize:36,fontWeight:900,marginBottom:6}}>Welcome, {user.name}!</h1>
-            <p style={{color:'rgba(255,255,255,0.45)',marginBottom:36}}>Your bookings and file deliveries</p>
-
-            <div style={{marginBottom:36}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16,flexWrap:'wrap',gap:12}}>
-                <h2 style={{fontSize:22,fontWeight:800}}>My Bookings</h2>
-                <button onClick={()=>setPage('booking')} className="gradient-btn" style={{padding:'10px 20px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:14}}>+ New Booking</button>
-              </div>
-              {loading && <p style={{color:'rgba(255,255,255,0.4)',fontSize:14}}>Loading...</p>}
-              {!loading && bookings.length===0 && <p style={{color:'rgba(255,255,255,0.4)',fontSize:14}}>No bookings yet.</p>}
-              {bookings.map(b=>(
-                <div key={b._id||b.bookingRef} className="glass" style={{borderRadius:20,padding:'22px 24px',marginBottom:12}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
-                    <div>
-                      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
-                        <span style={{fontWeight:800,fontSize:18}}>{b.packageName} Package</span>
-                        <span style={{background:'rgba(16,185,129,0.15)',color:'#34d399',fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:50}}>{b.status}</span>
-                      </div>
-                      <p style={{color:'rgba(255,255,255,0.5)',fontSize:13}}>{b.eventType} • {b.eventDate}</p>
-                      <p style={{color:'rgba(255,255,255,0.3)',fontSize:12,marginTop:2}}>Ref: {b.bookingRef}</p>
-                    </div>
-                    <div style={{textAlign:'right'}}>
-                      <div style={{color:'#34d399',fontWeight:800,fontSize:16}}>₹{(b.paidAmount||0).toLocaleString()} paid</div>
-                      <div style={{color:'#fbbf24',fontSize:13}}>₹{(b.balanceDue||0).toLocaleString()} due on day</div>
-                      <div style={{color:'rgba(255,255,255,0.3)',fontSize:12}}>Total: ₹{(b.totalAmount||0).toLocaleString()}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <h2 style={{fontSize:22,fontWeight:800,marginBottom:16}}>My File Deliveries</h2>
-            {!loading && deliveries.length===0 && (
-              <div className="glass" style={{borderRadius:20,padding:'28px 24px',textAlign:'center',color:'rgba(255,255,255,0.45)',fontSize:14}}>
-                No files delivered yet. Your photographer will share them here after your event. 📸
-              </div>
-            )}
-            {deliveries.map(g=>(
-              <div key={g._id} className="glass" style={{borderRadius:20,padding:'22px 24px',marginBottom:12}}>
-                <div style={{marginBottom:14}}>
-                  <h3 style={{fontWeight:800,fontSize:18}}>{g.name}</h3>
-                  <p style={{color:'rgba(255,255,255,0.4)',fontSize:13}}>{g.date} • {g.files.length} file{g.files.length!==1?'s':''}</p>
-                </div>
-                {g.files.map((file,i)=>(
-                  <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12,padding:'12px 0',borderTop:i>0?'1px solid rgba(255,255,255,0.07)':'none'}}>
-                    <div style={{display:'flex',alignItems:'center',gap:10}}>
-                      <span style={{fontSize:12,background:'rgba(229,9,20,0.1)',color:'#ff5a5f',padding:'4px 10px',borderRadius:50}}>{file.type==='video'?'🎬 Video':'📸 Photos'}</span>
-                      <div>
-                        <div style={{fontWeight:700,fontSize:15}}>{file.name}</div>
-                        {file.size&&<div style={{fontSize:12,color:'rgba(255,255,255,0.35)'}}>{file.size}</div>}
-                      </div>
-                    </div>
-                    <a href={file.link} target="_blank" rel="noopener noreferrer"
-                      className="gradient-btn" style={{display:'flex',alignItems:'center',gap:8,padding:'10px 20px',borderRadius:12,fontWeight:700,color:'#fff',fontSize:14,textDecoration:'none',whiteSpace:'nowrap'}}>
-                      <Icons.Download /> Download
-                    </a>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    // ── Admin ─────────────────────────────────────────────────────────────────────
-    function AdminDash({ setPage, user }) {
-      const [bookings, setBookings] = useState([]);
-      const [deliveries, setDeliveries] = useState([]);
-      const [stats, setStats] = useState({ revenue:0, pending:0, count:0 });
-      const [tab, setTab] = useState('bookings');
-      const [loading, setLoading] = useState(true);
-
-      // New-delivery form state
-      const [dName, setDName] = useState('');
-      const [dEmail, setDEmail] = useState('');
-      const [dDate, setDDate] = useState('');
-      const [dFiles, setDFiles] = useState([{ name:'', type:'photos', size:'', link:'' }]);
-      const [saving, setSaving] = useState(false);
-      const [msg, setMsg] = useState('');
-
-      const loadData = async () => {
-        try {
-          const [bRes, gRes] = await Promise.all([
-            api('/api/bookings/all', 'GET', null, user.token),
-            api('/api/galleries/all', 'GET', null, user.token),
-          ]);
-          setBookings(bRes.bookings || []);
-          setStats({ revenue:bRes.revenue||0, pending:bRes.pending||0, count:bRes.count||0 });
-          setDeliveries(gRes || []);
-        } catch (e) { /* offline */ }
-        setLoading(false);
-      };
-      useEffect(() => { loadData(); }, []);
-
-      const setFile = (i,k,v) => setDFiles(fs => fs.map((f,idx)=> idx===i ? {...f,[k]:v} : f));
-      const addFileRow = () => setDFiles(fs => [...fs, { name:'', type:'photos', size:'', link:'' }]);
-      const removeFileRow = (i) => setDFiles(fs => fs.filter((_,idx)=>idx!==i));
-
-      const createDelivery = async () => {
-        setMsg('');
-        if (!dName.trim() || !dEmail.trim()) { setMsg('Event name and client email are required'); return; }
-        const validFiles = dFiles.filter(f => f.name.trim() && f.link.trim());
-        if (validFiles.length === 0) { setMsg('Add at least one file with a name and a link'); return; }
-        setSaving(true);
-        try {
-          await api('/api/galleries', 'POST', {
-            name: dName.trim(), clientEmail: dEmail.trim(), date: dDate || new Date().toISOString().split('T')[0],
-            files: validFiles,
-          }, user.token);
-          setMsg('✅ Delivery sent to ' + dEmail);
-          setDName(''); setDEmail(''); setDDate(''); setDFiles([{ name:'', type:'photos', size:'', link:'' }]);
-          loadData();
-        } catch (e) { setMsg('Error: ' + e.message); }
-        setSaving(false);
-      };
-
-      const deleteDelivery = async (id) => {
-        try { await api('/api/galleries/'+id, 'DELETE', null, user.token); setDeliveries(d=>d.filter(x=>x._id!==id)); } catch(e){}
-      };
-
-      const statusColor = s => s==='Fully Paid'?{bg:'rgba(16,185,129,0.15)',c:'#34d399'}:s==='Confirmed'?{bg:'rgba(229,9,20,0.15)',c:'#ff5a5f'}:{bg:'rgba(251,191,36,0.15)',c:'#fbbf24'};
-      const inp = {flex:1,minWidth:120,padding:'11px 14px',borderRadius:10,fontSize:14,color:'#fff',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.15)',outline:'none',boxSizing:'border-box'};
-
-      return (
-        <div style={{minHeight:'100vh',padding:'40px 24px'}}>
-          <div style={{maxWidth:1100,margin:'0 auto'}}>
-            <h1 style={{fontSize:36,fontWeight:900,marginBottom:28}}>Admin Dashboard</h1>
-
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:14,marginBottom:28}}>
-              {[['📅','Bookings',stats.count],['💰','Revenue','₹'+stats.revenue.toLocaleString()],['⏳','Pending','₹'+stats.pending.toLocaleString()],['🗂️','Deliveries',deliveries.length]].map(([icon,label,val])=>(
-                <div key={label} className="glass" style={{borderRadius:18,padding:'20px',textAlign:'center'}}>
-                  <div style={{fontSize:30,marginBottom:6}}>{icon}</div>
-                  <div style={{fontSize:24,fontWeight:900,color:'#ff5a5f',marginBottom:2}}>{val}</div>
-                  <div style={{fontSize:13,color:'rgba(255,255,255,0.45)'}}>{label}</div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{display:'flex',gap:10,marginBottom:20}}>
-              {['bookings','deliveries'].map(t=>(
-                <button key={t} onClick={()=>setTab(t)} className={tab===t?'gradient-btn':'glass'}
-                  style={{padding:'10px 22px',borderRadius:12,fontWeight:700,fontSize:14,cursor:'pointer',border:'none',color:'#fff',textTransform:'capitalize'}}>
-                  {t==='bookings'?'📅 Bookings':'🗂️ File Deliveries'}
-                </button>
-              ))}
-            </div>
-
-            {loading && <p style={{color:'rgba(255,255,255,0.4)',fontSize:14}}>Loading...</p>}
-
-            {tab==='bookings' && !loading && bookings.length===0 && <p style={{color:'rgba(255,255,255,0.4)',fontSize:14}}>No bookings yet.</p>}
-            {tab==='bookings' && bookings.map(b=>{
-              const sc=statusColor(b.status);
-              return (
-                <div key={b._id} className="glass" style={{borderRadius:20,padding:'20px 24px',marginBottom:12}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
-                    <div>
-                      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4,flexWrap:'wrap'}}>
-                        <span style={{fontWeight:800,fontSize:17}}>{b.clientName}</span>
-                        <span style={{background:sc.bg,color:sc.c,fontSize:11,fontWeight:800,padding:'3px 10px',borderRadius:50}}>{b.status}</span>
-                      </div>
-                      <p style={{color:'rgba(255,255,255,0.5)',fontSize:13}}>{b.packageName} • {b.eventType} • {b.eventDate}</p>
-                      <p style={{color:'rgba(255,255,255,0.3)',fontSize:12,marginTop:2}}>{b.clientEmail} • Ref: {b.bookingRef}</p>
-                    </div>
-                    <div style={{textAlign:'right'}}>
-                      <div style={{color:'#34d399',fontWeight:800}}>₹{(b.paidAmount||0).toLocaleString()} received</div>
-                      {b.balanceDue>0&&<div style={{color:'#fbbf24',fontSize:13}}>₹{b.balanceDue.toLocaleString()} pending</div>}
-                      <div style={{color:'rgba(255,255,255,0.3)',fontSize:12}}>Total: ₹{(b.totalAmount||0).toLocaleString()}</div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-            {tab==='deliveries' && (
-              <>
-                <div className="glass" style={{borderRadius:20,padding:'24px',marginBottom:16}}>
-                  <h2 style={{fontSize:18,fontWeight:800,marginBottom:6}}>Send Files to a Client</h2>
-                  <p style={{color:'rgba(255,255,255,0.4)',fontSize:13,marginBottom:18}}>Upload photos/videos to Google Drive or Dropbox, then paste the share link below. The client sees it when they log in.</p>
-
-                  <div style={{display:'flex',gap:12,flexWrap:'wrap',marginBottom:12}}>
-                    <input value={dName} onChange={e=>setDName(e.target.value)} placeholder="Event name (e.g. Raj & Priya Wedding)" style={inp} />
-                    <input value={dEmail} onChange={e=>setDEmail(e.target.value)} placeholder="Client's login email" style={inp} />
-                    <input type="date" value={dDate} onChange={e=>setDDate(e.target.value)} style={{...inp,maxWidth:170}} />
-                  </div>
-
-                  <div style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,0.6)',margin:'6px 0 8px'}}>Files / Links</div>
-                  {dFiles.map((f,i)=>(
-                    <div key={i} style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:8,alignItems:'center'}}>
-                      <input value={f.name} onChange={e=>setFile(i,'name',e.target.value)} placeholder="File name (e.g. Wedding Photos)" style={{...inp,minWidth:150}} />
-                      <select value={f.type} onChange={e=>setFile(i,'type',e.target.value)} style={{...inp,maxWidth:120,cursor:'pointer'}}>
-                        <option value="photos">📸 Photos</option>
-                        <option value="video">🎬 Video</option>
-                      </select>
-                      <input value={f.size} onChange={e=>setFile(i,'size',e.target.value)} placeholder="Size (e.g. 2.4 GB)" style={{...inp,maxWidth:130}} />
-                      <input value={f.link} onChange={e=>setFile(i,'link',e.target.value)} placeholder="Paste Google Drive / Dropbox link" style={{...inp,minWidth:200}} />
-                      {dFiles.length>1 && <button onClick={()=>removeFileRow(i)} style={{padding:'10px 12px',borderRadius:10,background:'rgba(239,68,68,0.15)',border:'1px solid rgba(239,68,68,0.3)',color:'#fca5a5',cursor:'pointer',fontSize:13}}>✕</button>}
-                    </div>
-                  ))}
-                  <button onClick={addFileRow} className="glass" style={{padding:'8px 16px',borderRadius:10,color:'#ff5a5f',border:'1px solid rgba(229,9,20,0.3)',cursor:'pointer',fontSize:13,fontWeight:700,marginBottom:14}}>+ Add another file</button>
-
-                  {msg && <div style={{fontSize:13,marginBottom:12,color:msg.startsWith('✅')?'#34d399':'#fca5a5'}}>{msg}</div>}
-
-                  <div>
-                    <button onClick={createDelivery} disabled={saving}
-                      className="gradient-btn" style={{padding:'12px 26px',borderRadius:12,fontWeight:700,border:'none',cursor:'pointer',color:'#fff',fontSize:14,opacity:saving?0.5:1}}>
-                      {saving ? 'Sending...' : '📤 Send to Client'}
-                    </button>
-                  </div>
-                </div>
-
-                {!loading && deliveries.length===0 && <p style={{color:'rgba(255,255,255,0.4)',fontSize:14}}>No deliveries sent yet.</p>}
-                {deliveries.map(g=>(
-                  <div key={g._id} className="glass" style={{borderRadius:20,padding:'20px 24px',marginBottom:12}}>
-                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:12}}>
-                      <div>
-                        <h3 style={{fontWeight:800,fontSize:17}}>{g.name}</h3>
-                        <p style={{color:'rgba(255,255,255,0.45)',fontSize:13}}>To: {g.clientEmail} • {g.files.length} file{g.files.length!==1?'s':''} • {g.date}</p>
-                      </div>
-                      <button onClick={()=>deleteDelivery(g._id)}
-                        style={{padding:'8px 18px',borderRadius:10,background:'rgba(239,68,68,0.15)',border:'1px solid rgba(239,68,68,0.3)',color:'#fca5a5',fontWeight:700,cursor:'pointer',fontSize:13,display:'flex',alignItems:'center',gap:6}}>
-                        <Icons.Trash /> Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-          </div>
-        </div>
       );
     }
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
-
-  <style>
-    @media (max-width: 768px) {
-      .hidden-mobile { display: none !important; }
-      .show-mobile { display: block !important; }
-    }
-    @media (min-width: 769px) {
-      .hidden-mobile { display: flex !important; }
-      .show-mobile { display: none !important; }
-    }
-  </style>
 </body>
 </html>
